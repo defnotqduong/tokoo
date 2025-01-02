@@ -1,0 +1,458 @@
+<template>
+  <div class="content-container">
+    <div class="py-4 px-4 flex items-center justify-between border-b border-borderColor">
+      <h3 class="text-lg font-bold">Chỉnh sửa sản phẩm</h3>
+    </div>
+    <div class="px-4 pt-5 pb-20">
+      <form class="form">
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-8">
+            <div class="grid grid-cols-12 gap-4">
+              <div class="col-span-6">
+                <div class="input-group">
+                  <label for="name" class="title">Tên sản phẩm <span class="text-dangerColor">*</span></label>
+                  <input type="text" name="name" id="name" placeholder="Tên danh mục" v-model="name" @input="validateName" @blur="validateName" />
+                </div>
+                <div v-if="errors?.name && errors?.name.length > 0">
+                  <p v-for="(err, index) in errors?.name" :key="index" class="mt-2 text-sm text-red-500">{{ err }}</p>
+                </div>
+              </div>
+              <div class="col-span-6">
+                <div class="input-group">
+                  <label for="category" class="title">Tên danh mục <span class="text-dangerColor">*</span></label>
+                  <select name="category" id="category" class="select w-full" v-model="categoryId" @blur="validateCategory">
+                    <option v-for="category in categories" :key="category.id" :value="category.id">
+                      {{ category.name }}
+                    </option>
+                  </select>
+                </div>
+                <div v-if="errors?.categoryId && errors?.categoryId.length > 0">
+                  <p v-for="(err, index) in errors?.categoryId" :key="index" class="mt-2 text-sm text-dangerColor">{{ err }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-12 gap-4">
+              <div class="col-span-12">
+                <div class="input-group">
+                  <label for="summary" class="title">Tổng quan sản phẩm <span class="text-dangerColor">*</span> </label>
+                  <textarea
+                    type="text"
+                    name="summary"
+                    id="summary"
+                    placeholder="Tổng quan sẩn phẩm"
+                    v-model="summary"
+                    class="resize-none min-h-32"
+                    @input="validateSummary"
+                    @blur="validateSummary"
+                  ></textarea>
+                </div>
+                <div v-if="errors?.summary && errors?.summary.length > 0">
+                  <p v-for="(err, index) in errors?.summary" :key="index" class="mt-2 text-sm text-dangerColor">{{ err }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-12 gap-4">
+              <div class="col-span-12">
+                <div class="input-group">
+                  <label for="description" class="title">Mô tả sản phẩm <span class="text-dangerColor">*</span> </label>
+                  <Editor v-model="description" @input="validateDes" @blur="validateDes" />
+                </div>
+                <div v-if="errors?.description && errors?.description.length > 0">
+                  <p v-for="(err, index) in errors?.description" :key="index" class="mt-2 text-sm text-dangerColor">{{ err }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-12 gap-4">
+              <div class="col-span-6">
+                <div class="input-group">
+                  <label for="price" class="title">Giá <span class="text-dangerColor">*</span></label>
+                  <input type="text" name="price" id="price" placeholder="Giá" v-model="price" @input="validatePrice" @blur="validatePrice" />
+                </div>
+                <div v-if="errors?.price && errors?.price.length > 0">
+                  <p v-for="(err, index) in errors?.price" :key="index" class="mt-2 text-sm text-dangerColor">{{ err }}</p>
+                </div>
+              </div>
+              <div class="col-span-6">
+                <div class="input-group">
+                  <label for="discount" class="title">Discount <span class="text-dangerColor">*</span> </label>
+                  <input
+                    type="text"
+                    name="discount"
+                    id="discount"
+                    placeholder="Discount"
+                    v-model="discount"
+                    @input="validateDiscount"
+                    @blur="validateDiscount"
+                  />
+                </div>
+                <div v-if="errors?.discount && errors?.discount.length > 0">
+                  <p v-for="(err, index) in errors?.discount" :key="index" class="mt-2 text-sm text-dangerColor">{{ err }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-4">
+            <div class="grid grid-cols-12 gap-4">
+              <div class="col-span-12">
+                <div class="input-group">
+                  <label for="thumbnail" class="title">Ảnh sản phẩm <span class="text-dangerColor">*</span></label>
+                  <form @drop.prevent="handleDrop" @dragover.prevent>
+                    <div class="h-72 relative">
+                      <input type="file" name="createInputFile" id="createInputFile" class="absolute z-[-1]" @change="handleFileChange" />
+                      <img v-if="imageUrl" :src="imageUrl" alt="Uploaded Image" class="absolute top-0 left-0 w-full h-full object-cover rounded-md z-[1]" />
+                      <label
+                        for="createInputFile"
+                        class="w-full h-full flex flex-col items-center justify-center text-primaryColor bg-slate-200 rounded-md border-2 border-dashed border-[#797989]"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="48" height="48" viewBox="0 -1.5 35 35" version="1.1">
+                          <path
+                            d="M29.426 15.535c0 0 0.649-8.743-7.361-9.74-6.865-0.701-8.955 5.679-8.955 5.679s-2.067-1.988-4.872-0.364c-2.511 1.55-2.067 4.388-2.067 4.388s-5.576 1.084-5.576 6.768c0.124 5.677 6.054 5.734 6.054 5.734h9.351v-6h-3l5-5 5 5h-3v6h8.467c0 0 5.52 0.006 6.295-5.395 0.369-5.906-5.336-7.070-5.336-7.070z"
+                          />
+                        </svg>
+                        <div class="mt-2 font-bold text-bodyColor">Chọn tệp hoặc kéo và thả</div>
+                        <span class="text-sm text-bodyColor">Ảnh (4MB)</span>
+                      </label>
+                    </div>
+                    <label
+                      for="createInputFile"
+                      class="mt-4 w-full h-10 flex items-center justify-center bg-primaryColor text-whiteColor cursor-pointer rounded-md"
+                      >Chọn tệp</label
+                    >
+                  </form>
+                  <div v-if="errors?.file && errors?.file.length > 0">
+                    <p v-for="(err, index) in errors?.file" :key="index" class="mt-2 text-dangerColor">{{ err }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 flex items-center justify-start gap-4">
+          <button
+            @click.prevent="cancel"
+            ref="cancelButton"
+            class="px-4 h-10 bg-dangerColor text-whiteColor transition-all duration-300 rounded-lg hover:bg-darkDangerColor"
+          >
+            Hủy
+          </button>
+          <button
+            :disabled="isSubmitting"
+            @click.prevent="create"
+            class="px-4 h-10 bg-primaryColor text-whiteColor transition-all duration-300 rounded-lg hover:bg-darkPrimaryColor"
+          >
+            Tạo
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { generateFileName } from '@/utils'
+import { useUserStore, useToastStore } from '@/stores'
+import { getProductInfo, editProduct } from '@/webServices/productService'
+import { getAllCategory } from '@/webServices/categoryService'
+
+import Editor from '@/components/Editor/Editor.vue'
+export default defineComponent({
+  components: { Editor },
+  setup() {
+    const router = useRouter()
+    const route = useRoute()
+    const userStore = useUserStore()
+    const toastStore = useToastStore()
+
+    const loading = ref(false)
+    const isSubmitting = ref(false)
+    const categories = ref([])
+
+    const product = reactive({
+      name: '',
+      categoryId: null,
+      summary: '',
+      description: '',
+      price: null,
+      discount: null
+    })
+
+    const file = ref(null)
+    const imageUrl = ref(null)
+
+    const handleDrop = e => {
+      if (e.dataTransfer.files.length > 0) {
+        const originalFile = e.dataTransfer.files[0]
+        const newFileName = generateFileName(originalFile.name)
+        file.value = new File([originalFile], newFileName, { type: originalFile.type })
+        imageUrl.value = URL.createObjectURL(file.value)
+
+        validateFile()
+      }
+    }
+
+    const handleFileChange = e => {
+      if (e.target.files.length > 0) {
+        const originalFile = e.target.files[0]
+        const newFileName = generateFileName(originalFile.name)
+        file.value = new File([originalFile], newFileName, { type: originalFile.type })
+        imageUrl.value = URL.createObjectURL(file.value)
+
+        validateFile()
+      }
+    }
+
+    const isErrorFile = ref(false)
+    const isErrorName = ref(false)
+    const isErrorCategory = ref(false)
+    const isErrorSumary = ref(false)
+    const isErrorDes = ref(false)
+    const isErrorPrice = ref(false)
+    const isErrorDiscount = ref(false)
+
+    const errors = ref({
+      file: [],
+      name: [],
+      categoryId: [],
+      summary: [],
+      description: [],
+      price: [],
+      discount: []
+    })
+
+    const validateFile = () => {
+      errors.value.file = []
+
+      if (!file.value) {
+        errors.value.file.push('Vui lòng chọn file')
+        isErrorFile.value = true
+      } else {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']
+        if (!allowedTypes.includes(file.value.type)) {
+          errors.value.file.push('File không đúng định dạng (chỉ chấp nhận JPEG, PNG, GIF)')
+          isErrorFile.value = true
+        } else if (file.value.size > 4 * 1024 * 1024) {
+          errors.value.file.push('Vui lòng chọn file có dung lượng không vượt quá 4MB')
+          isErrorFile.value = true
+        } else {
+          isErrorFile.value = false
+        }
+      }
+    }
+
+    const validateName = () => {
+      errors.value.name = []
+
+      if (!product.name) {
+        errors.value.name.push('Vui lòng nhập tên sản phẩm')
+        isErrorName.value = true
+      } else {
+        isErrorName.value = false
+      }
+    }
+
+    const validateCategory = () => {
+      errors.value.categoryId = []
+      if (!product.categoryId) {
+        errors.value.categoryId.push('Vui lòng chọn danh mục')
+        isErrorCategory.value = true
+      } else {
+        isErrorCategory.value = false
+      }
+    }
+
+    const validateSummary = () => {
+      errors.value.summary = []
+
+      if (!product.summary) {
+        errors.value.summary.push('Vui lòng nhập tổng quan sản phẩm')
+        isErrorSumary.value = true
+      } else {
+        isErrorSumary.value = false
+      }
+    }
+
+    const validateDes = () => {
+      errors.value.description = []
+
+      if (!product.description) {
+        errors.value.description.push('Vui lòng nhập mô tả sản phẩm')
+        isErrorDes.value = true
+      } else {
+        isErrorDes.value = false
+      }
+    }
+
+    const validatePrice = () => {
+      errors.value.price = []
+
+      if (!product.price) {
+        errors.value.price.push('Vui lòng nhập giá sản phẩm')
+        isErrorPrice.value = true
+      } else if (!/^[0-9]+$/.test(product.price)) {
+        errors.value.price.push('Giá sản phẩm chỉ được phép chứa chữ số')
+        isErrorPrice.value = true
+      } else {
+        isErrorPrice.value = false
+      }
+    }
+
+    const validateDiscount = () => {
+      errors.value.discount = []
+
+      if (!product.discount) {
+        errors.value.discount.push('Vui lòng nhập discount')
+        isErrorDiscount.value = true
+      } else if (!/^[0-9]+$/.test(product.discount)) {
+        errors.value.discount.push('Discount chỉ được phép chứa chữ số')
+        isErrorDiscount.value = true
+      } else {
+        isErrorDiscount.value = false
+      }
+    }
+
+    const cancel = () => {
+      router.push({ name: 'products' })
+    }
+
+    const create = async () => {
+      isSubmitting.value = true
+      validateFile()
+      validateName()
+      validateCategory()
+      validateSummary()
+      validateDes()
+      validatePrice()
+      validateDiscount()
+
+      if (isErrorFile.value || isErrorName.value || isErrorCategory.value || isErrorPrice.value) {
+        isSubmitting.value = false
+        return
+      }
+
+      const formData = new FormData()
+      const specialPrice = parseFloat(product.price) - (parseFloat(product.price) * parseFloat(product.discount)) / 100
+
+      formData.append('name', product.name)
+      formData.append('categoryId', product.categoryId)
+      formData.append('summary', product.summary)
+      formData.append('description', product.description)
+      formData.append('price', parseFloat(product.price))
+      formData.append('discount', parseFloat(product.discount))
+      formData.append('specialPrice', specialPrice.toFixed(2))
+      formData.append('file', file.value)
+
+      const res = await createProduct(formData)
+      if (res.success) {
+        toastStore.showToastModal({
+          type: 'success',
+          message: 'Tạo sản phẩm thành công',
+          timeout: 3000
+        })
+
+        router.push({ name: 'products' })
+      }
+      isSubmitting.value = false
+    }
+
+    const fetchData = async () => {
+      const res = await getAllCategory()
+      console.log(res)
+
+      if (res.success) {
+        categories.value = res.dtoList
+      }
+    }
+
+    const getProduct = async () => {
+      const slug = route.params.slug
+      const parts = slug.split('-')
+      const id = parts[parts.length - 1]
+      const res = await getProductInfo(id)
+
+      console.log(res)
+    }
+
+    onMounted(async () => {
+      loading.value = true
+      await Promise.all([fetchData(), getProduct()])
+      loading.value = false
+    })
+
+    return {
+      loading,
+      isSubmitting,
+      ...toRefs(product),
+      file,
+      imageUrl,
+      categories,
+      errors,
+      validateFile,
+      validateName,
+      validateCategory,
+      validateSummary,
+      validateDes,
+      validatePrice,
+      validateDiscount,
+      handleDrop,
+      handleFileChange,
+      cancel,
+      create
+    }
+  },
+  methods: {
+    scrollToTop() {
+      window.scrollTo({ top: 0 })
+    }
+  },
+  created() {
+    this.scrollToTop()
+  }
+})
+</script>
+
+<style scoped>
+.content-container {
+  box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.03);
+  @apply bg-whiteColor rounded-md;
+}
+
+.form {
+  @apply w-full;
+}
+
+.input-group .title {
+  @apply text-headingColor block mb-2 font-semibold;
+}
+
+.input-group {
+  display: block;
+  margin-top: 16px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  position: relative;
+}
+
+.input-group input,
+.input-group textarea,
+.input-group .select {
+  width: 100%;
+  border-radius: 0.375rem;
+  height: 40px;
+  border: 1px solid;
+  outline: 0;
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  @apply border-borderColor text-headingColor;
+}
+
+select {
+  min-height: auto;
+}
+
+.input-group input:focus,
+.input-group textarea:focus,
+.input-group .select:focus {
+  @apply border-headingOpacityColor;
+}
+</style>
