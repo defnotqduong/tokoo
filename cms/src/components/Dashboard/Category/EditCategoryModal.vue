@@ -2,9 +2,9 @@
   <div>
     <input type="checkbox" id="my_modal_add_address" class="modal-toggle" v-model="isEditModalOpen" />
     <div class="modal" role="dialog">
-      <div class="modal-box max-w-[600px] bg-white py-6 px-8">
+      <div class="modal-box max-w-[800px] bg-white py-6 px-8">
         <div>
-          <h4 class="text-xl font-bold">Chỉnh sửa danh mục</h4>
+          <h4 class="text-xl font-bold">Cập nhật danh mục</h4>
         </div>
         <form class="form">
           <div class="grid grid-cols-12 gap-4">
@@ -46,7 +46,7 @@
               @click.prevent="edit"
               class="px-4 h-10 bg-primaryColor text-whiteColor transition-all duration-300 rounded-lg hover:bg-darkPrimaryColor"
             >
-              Lưu
+              Cập nhật
             </button>
           </div>
         </form>
@@ -116,6 +116,16 @@ export default defineComponent({
         name: props.selectCategory.name,
         description: props.selectCategory.description
       })
+
+      if (!res.success) {
+        toastStore.showToastModal({
+          type: 'error',
+          message: 'Danh mục đã tồn tại trong hệ thống',
+          timeout: 3000
+        })
+        isSubmitting.value = false
+        return
+      }
 
       if (res.success) {
         toastStore.showToastModal({

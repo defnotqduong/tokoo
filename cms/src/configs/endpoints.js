@@ -97,5 +97,37 @@ export default {
   DELETE_PRODUCT_API: {
     method: 'deleted',
     url: '/store/product'
+  },
+  GET_LIST_VARIANT_API: {
+    method: 'get',
+    url: '/public/variant'
+  },
+  ADD_VARIANT_API: {
+    method: 'post',
+    url: '/store/variant/add'
+  },
+  EDIT_VARIANT_API: {
+    method: 'put',
+    url: '/store/variant'
+  },
+  DELETE_VARIANT_API: {
+    method: 'deleted',
+    url: '/store/variant'
+  },
+  GET_LIST_SIZE_API: {
+    method: 'get',
+    url: '/public/size'
+  },
+  ADD_SIZE_API: {
+    method: 'post',
+    url: '/store/size'
+  },
+  EDIT_SIZE_API: {
+    method: 'put',
+    url: '/store/size'
+  },
+  DELETE_SIZE_API: {
+    method: 'deleted',
+    url: '/store/size'
   }
 }

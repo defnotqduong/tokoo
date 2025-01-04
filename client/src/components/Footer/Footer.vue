@@ -59,7 +59,7 @@
                 />
                 <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
               </svg>
-              <strong>Email:</strong>email@example.com
+              <strong>Email:</strong>tokoosystem@gmail.com
             </li>
             <li class="flex items-center gap-1 mb-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" class="text-primaryColor">

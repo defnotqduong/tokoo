@@ -25,11 +25,11 @@
         <div>
           <select class="select w-full">
             <option value="" selected disabled>Sắp xếp theo</option>
-            <option value="">Default</option>
-            <option value="latest">Latest</option>
-            <option value="popularity">Popularity</option>
-            <option value="price_asc">Price: low to high</option>
-            <option value="price_desc">Price: high to low</option>
+            <option value="">Mặc định</option>
+            <option value="latest">Mới nhất</option>
+            <option value="popularity">Phổ biến</option>
+            <option value="price_asc">Giá: Từ thấp đến cao</option>
+            <option value="price_desc">Giá: Từ cao đến thấp</option>
           </select>
         </div>
         <div>

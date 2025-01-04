@@ -1,8 +1,10 @@
 import api from '@/configs/endpoints'
 import connectServer from '@/configs/connectServer'
 
-export const getListCategory = () => {
-  return connectServer[api.GET_LIST_CATEGORY_API.method](api.GET_LIST_CATEGORY_API.url)
+export const getListCategory = (options = {}) => {
+  const queryParams = new URLSearchParams(options).toString()
+  const url = `${api.GET_LIST_CATEGORY_API.url}${queryParams ? `?${queryParams}` : ''}`
+  return connectServer[api.GET_LIST_CATEGORY_API.method](url)
 }
 
 export const getAllCategory = () => {

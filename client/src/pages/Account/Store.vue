@@ -6,37 +6,46 @@
     <div>
       <form class="form">
         <div class="input-group">
-          <label for="old-password" class="title"
+          <label for="name" class="title"
             >Tên shop
             <span class="text-dangerColor">*</span>
           </label>
           <div class="relative w-1/2">
-            <input type="text" />
+            <input type="text" id="name" name="name" v-model="name" @input="validateName" @blur="validateName" />
           </div>
         </div>
         <div class="w-1/2" v-if="errors?.name && errors?.name.length > 0">
           <p v-for="(err, index) in errors?.name" :key="index" class="mt-2 text-sm text-red-500">{{ err }}</p>
         </div>
         <div class="input-group">
-          <label for="old-password" class="title">Mô tả </label>
+          <label for="desc" class="title">Mô tả </label>
           <div class="relative w-1/2">
-            <input type="text" />
+            <textarea type="text" name="desc" id="desc" placeholder="Mô tả" v-model="description" class="resize-none min-h-20"></textarea>
           </div>
         </div>
         <div class="w-1/2" v-if="errors?.description && errors?.description.length > 0">
           <p v-for="(err, index) in errors?.description" :key="index" class="mt-2 text-sm text-red-500">{{ err }}</p>
         </div>
         <div class="input-group">
-          <label for="old-password" class="title">Địa chỉ <span class="text-dangerColor">*</span></label>
+          <label for="address" class="title">Địa chỉ <span class="text-dangerColor">*</span></label>
           <div class="relative w-1/2">
-            <input type="text" />
+            <textarea
+              type="text"
+              name="address"
+              id="address"
+              placeholder="Địa chỉ"
+              v-model="address"
+              class="resize-none min-h-20"
+              @input="validateAddress"
+              @blur="validateAddress"
+            ></textarea>
           </div>
         </div>
         <div class="w-1/2" v-if="errors?.address && errors?.address.length > 0">
           <p v-for="(err, index) in errors?.address" :key="index" class="mt-2 text-sm text-red-500">{{ err }}</p>
         </div>
         <div class="mt-4">
-          <PrimaryButton :content="'Yêu cầu'" :func="request" :loading="loading" />
+          <PrimaryButton :content="'Yêu cầu'" :func="request" :loading="isSubmitting" />
         </div>
       </form>
     </div>
@@ -44,17 +53,103 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive } from 'vue'
+import { defineComponent, ref, reactive, toRefs } from 'vue'
 import { useToastStore } from '@/stores'
+import { requestCreateStore } from '@/webServices/userService'
+
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 export default defineComponent({
   components: { PrimaryButton },
   setup() {
     const toastStore = useToastStore()
 
-    const request = () => {}
+    const isSubmitting = ref(false)
 
-    return { request }
+    const requestForm = reactive({
+      name: '',
+      description: '',
+      address: ''
+    })
+
+    const errors = ref({
+      name: [],
+      description: [],
+      address: []
+    })
+
+    const clearRequestForm = () => {
+      requestForm.name = ''
+      requestForm.description = ''
+      requestForm.address = ''
+    }
+
+    const isErrorName = ref(false)
+    const isErrorDesc = ref(false)
+    const isErrorAddress = ref(false)
+
+    const validateName = () => {
+      errors.value.name = []
+
+      if (!requestForm.name) {
+        errors.value.name.push('Vui lòng nhập tên shop')
+        isErrorName.value = true
+      } else {
+        isErrorName.value = false
+      }
+    }
+
+    const validateDesc = () => {
+      errors.value.description = []
+
+      if (!requestForm.description) {
+        errors.value.description.push('Vui lòng nhập mô tả')
+        isErrorDesc.value = true
+      } else {
+        isErrorDesc.value = false
+      }
+    }
+
+    const validateAddress = () => {
+      errors.value.address = []
+
+      if (!requestForm.address) {
+        errors.value.address.push('Vui lòng nhập địa chỉ')
+        isErrorAddress.value = true
+      } else {
+        isErrorAddress.value = false
+      }
+    }
+
+    const request = async () => {
+      isSubmitting.value = true
+      validateName()
+      validateAddress()
+
+      if (isErrorName.value || isErrorAddress.value) {
+        isSubmitting.value = false
+        return
+      }
+
+      const res = await requestCreateStore({
+        name: requestForm.name,
+        description: requestForm.description,
+        address: requestForm.address
+      })
+
+      if (res.success) {
+        toastStore.showToastModal({
+          type: 'error',
+          message: 'Đăng kí bán hàng thành công',
+          timeout: 3000
+        })
+
+        clearRequestForm()
+      }
+
+      isSubmitting.value = false
+    }
+
+    return { isSubmitting, errors, ...toRefs(requestForm), validateName, validateDesc, validateAddress, request }
   },
   methods: {
     scrollToTop() {
@@ -68,11 +163,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.form {
-}
-
 .input-group .title {
-  @apply block mb-2 font-bold leading-none;
+  @apply text-headingColor block mb-2 font-bold;
 }
 
 .input-group {
@@ -83,16 +175,25 @@ export default defineComponent({
   position: relative;
 }
 
-.input-group input {
+.input-group input,
+.input-group textarea,
+.input-group .select {
   width: 100%;
   border-radius: 0.375rem;
+  height: 40px;
   border: 1px solid;
   outline: 0;
   padding: 0.5rem 1rem 0.5rem 1rem;
   @apply border-borderColor text-headingColor;
 }
 
-.input-group input:focus {
+select {
+  min-height: auto;
+}
+
+.input-group input:focus,
+.input-group textarea:focus,
+.input-group .select:focus {
   @apply border-headingOpacityColor;
 }
 </style>

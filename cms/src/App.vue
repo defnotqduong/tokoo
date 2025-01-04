@@ -48,8 +48,6 @@ export default defineComponent({
 
       const [userData] = await Promise.all([userPromise])
 
-      console.log(userData)
-
       if (userData?.success) {
         this.userStore.setUser(userData?.user)
 
@@ -57,8 +55,6 @@ export default defineComponent({
 
         if (isStore) {
           const storeInfo = await getStoreInfo()
-
-          console.log(storeInfo)
 
           this.userStore.setStore(storeInfo?.dto)
         }

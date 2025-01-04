@@ -2,7 +2,7 @@
   <div>
     <input type="checkbox" id="my_modal_add_address" class="modal-toggle" v-model="isDeleteModalOpen" />
     <div class="modal" role="dialog">
-      <div class="modal-box max-w-[600px] bg-white py-6 px-8">
+      <div class="modal-box max-w-[800px] bg-white py-6 px-8">
         <span
           >Bạn muốn xóa danh mục <strong class="text-bold">{{ selectCategory.name }}</strong> ?</span
         >
@@ -31,6 +31,9 @@ export default defineComponent({
   props: {
     isDeleteModalOpen: Boolean,
     selectCategory: Object,
+    length: Number,
+    changePage: Function,
+    options: Object,
     fetchData: Function,
     closeDeleteModal: Function
   },
@@ -55,6 +58,11 @@ export default defineComponent({
           message: 'Xóa danh mục thành công',
           timeout: 3000
         })
+
+        if (props.length === 1) {
+          props.changePage(props.options.pageNumber - 1)
+        }
+
         props.fetchData()
       }
       close()

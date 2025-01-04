@@ -47,7 +47,7 @@ export default {
         bgDarkSecondaryColor: '#2F3446',
         bgDarkCardColor: '#2a3042',
         bgActiveColor: '#383E50',
-        bgLightPrimaryColor: '#f8f9fa',
+        bgLightPrimaryColor: '#f9f7f7',
         bgSidebarActiveColor: 'rgba(59, 183, 126, 0.2)'
       },
       backgroundColor: {

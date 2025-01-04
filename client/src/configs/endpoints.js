@@ -70,6 +70,12 @@ export default {
     url: '/user/address'
   },
 
+  // Request create store
+  REQUEST_CREATE_STORE_API: {
+    method: 'post',
+    url: '/user/create-store-request'
+  },
+
   // Cart
   GET_CART_API: {
     method: 'get',

@@ -1,8 +1,9 @@
 <template>
-  <div>
+  <div class="flex items-center justify-between">
+    <div>Hiển thị {{ meta.totalElements }} kết quả</div>
     <ul class="pagination">
       <li :class="{ disabled: meta.first }">
-        <button :disabled="meta.first">
+        <button :disabled="meta.first" @click="changePage(meta.number - 1 - 1)">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="w-4 h-4">
             <path
               fill-rule="evenodd"
@@ -14,26 +15,26 @@
         </button>
       </li>
       <li v-if="meta.number >= 3">
-        <button>1</button>
+        <button @click="changePage(0)">1</button>
       </li>
       <li class="disabled" v-if="meta.number >= 4">
         <button disabled>...</button>
       </li>
       <li v-if="meta.number > 1">
-        <button>{{ meta.number - 1 }}</button>
+        <button @click="changePage(meta.number - 1 - 1)">{{ meta.number - 1 }}</button>
       </li>
       <li class="active">
         <button disabled>{{ meta.number }}</button>
       </li>
       <li v-if="!meta.last && meta.number + 1 !== meta.totalPages">
-        <button>{{ meta.number + 1 }}</button>
+        <button @click="changePage(meta.number + 1 - 1)">{{ meta.number + 1 }}</button>
       </li>
       <li class="disabled" v-if="meta.totalPages - meta.number >= 3"><button disabled>...</button></li>
       <li v-if="!meta.last">
-        <button>{{ meta.totalPages }}</button>
+        <button @click="changePage(meta.totalPages - 1)">{{ meta.totalPages }}</button>
       </li>
       <li :class="{ disabled: meta.last }">
-        <button :disabled="meta.last">
+        <button :disabled="meta.last" @click="changePage(meta.number - 1 + 1)">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="w-4 h-4">
             <path
               fill-rule="evenodd"
@@ -52,24 +53,25 @@
 import { defineComponent, ref } from 'vue'
 export default defineComponent({
   props: {
-    meta: Object
+    meta: Object,
+    changePage: Function
   },
+
   setup(props) {}
 })
 </script>
 
 <style scoped>
 .pagination {
-  @apply text-headingColor flex items-center justify-center;
+  @apply text-headingColor flex items-center justify-center gap-1 sm:gap-2;
 }
 
 .pagination li {
-  @apply m-1 sm:m-2;
 }
 
 .pagination li button {
   transition: all 0.4s;
-  @apply w-6 h-6 md:w-10 md:h-10 font-semibold bg-whiteColor rounded-md flex items-center justify-center shadow-shadow01;
+  @apply w-6 h-6 md:w-9 md:h-9 font-semibold bg-grayLightColor rounded-md flex items-center justify-center shadow-shadow01;
 }
 
 .pagination .disabled button {

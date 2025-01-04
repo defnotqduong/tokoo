@@ -4,7 +4,7 @@
     <div class="modal" role="dialog">
       <div class="modal-box max-w-[800px] bg-white py-6 px-8">
         <span
-          >Bạn muốn xóa sản phẩm <strong class="text-bold">{{ selectProduct.productName }}</strong> ?</span
+          >Bạn muốn xóa biến thể <strong class="text-bold">{{ variant.attribute }}</strong> ?</span
         >
         <div class="mt-6 flex items-center justify-end gap-4">
           <button @click.prevent="close" ref="cancelButton" class="px-4 h-10 rounded-md cursor-pointer transition-all duration-300 hover:bg-grayLightColor">
@@ -25,12 +25,12 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
+import { deleteVariant } from '@/webServices/productService'
 import { useUserStore, useToastStore } from '@/stores'
-import { deleteProduct } from '@/webServices/productService'
 export default defineComponent({
   props: {
     isDeleteModalOpen: Boolean,
-    selectProduct: Object,
+    variant: Object,
     fetchData: Function,
     closeDeleteModal: Function
   },
@@ -47,7 +47,7 @@ export default defineComponent({
     const deleted = async () => {
       isSubmitting.value = true
 
-      const res = await deleteProduct(props.selectProduct.productId)
+      const res = await deleteVariant(props.variant.id)
 
       if (res.success) {
         toastStore.showToastModal({

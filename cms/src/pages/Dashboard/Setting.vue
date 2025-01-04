@@ -1,5 +1,5 @@
 <template>
-  <div>Vận chuyển</div>
+  <div>Cài đặt</div>
 </template>
 
 <script>

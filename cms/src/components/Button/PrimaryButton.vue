@@ -2,7 +2,7 @@
   <button
     @click.prevent="func"
     :disabled="loading"
-    class="h-10 bg-greenColor text-whiteColor font-semibold py-2 px-4 rounded-lg hover:bg-darkPrimaryColor transition-all duration-300"
+    class="h-10 bg-greenColor text-whiteColor font-semibold py-2 px-4 rounded-lg whitespace-nowrap hover:bg-darkPrimaryColor transition-all duration-300"
     :class="{ 'cursor-no-drop': loading }"
   >
     {{ content }}

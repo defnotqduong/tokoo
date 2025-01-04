@@ -2,7 +2,7 @@
   <div>
     <input type="checkbox" id="my_modal_add_address" class="modal-toggle" v-model="isCreateModalOpen" />
     <div class="modal" role="dialog">
-      <div class="modal-box max-w-[600px] bg-white py-6 px-8">
+      <div class="modal-box max-w-[800px] bg-white py-6 px-8">
         <div>
           <h4 class="text-xl font-bold">Thêm danh mục</h4>
         </div>
@@ -57,6 +57,9 @@ export default defineComponent({
   props: {
     isCreateModalOpen: Boolean,
     fetchData: Function,
+    length: Number,
+    changePage: Function,
+    options: Object,
     closeCreateModal: Function
   },
   setup(props) {
@@ -119,12 +122,27 @@ export default defineComponent({
         description: category.description
       })
 
+      if (!res.success) {
+        toastStore.showToastModal({
+          type: 'error',
+          message: 'Danh mục đã tồn tại trong hệ thống',
+          timeout: 3000
+        })
+        isSubmitting.value = false
+        return
+      }
+
       if (res.success) {
         toastStore.showToastModal({
           type: 'success',
           message: 'Thêm danh mục thành công',
           timeout: 3000
         })
+
+        if (props.length === 8) {
+          props.changePage(props.options.pageNumber + 1)
+        }
+
         props.fetchData()
       }
       close()

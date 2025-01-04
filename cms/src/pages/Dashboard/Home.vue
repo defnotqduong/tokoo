@@ -1,8 +1,5 @@
 <template>
   <div class="content-container">
-    <div class="py-4 px-4 flex items-center justify-between border-b border-borderColor">
-      <h3 class="text-lg font-bold">Bảng điều khiển</h3>
-    </div>
     <div class="px-4 mt-4">
       <div class="grid grid-cols-12 gap-4">
         <div class="col-span-5 flex items-center justify-center">

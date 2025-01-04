@@ -2,7 +2,13 @@
   <div class="content-container">
     <div class="py-4 px-4 flex items-center justify-between border-b border-borderColor">
       <h3 class="text-lg font-bold">Danh sách danh mục</h3>
-      <PrimaryButton :content="'Thêm danh mục'" :func="openCreateModal" />
+      <div class="flex items-center justify-center gap-2">
+        <select class="select w-full min-w-40" @change="updateSortOrder($event.target.value)">
+          <option value="asc" selected>Mặc định</option>
+          <option value="desc">Mới nhất</option>
+        </select>
+        <PrimaryButton :content="'Thêm danh mục'" :func="openCreateModal" />
+      </div>
     </div>
     <div v-if="loading" class="min-h-[75vh] flex items-center justify-center text-primaryColor">
       <span class="loading loading-spinner loading-md"></span>
@@ -13,20 +19,21 @@
         <table class="table">
           <thead>
             <tr>
-              <th class="text-center">ID</th>
+              <th class="text-center">STT</th>
               <th>Danh mục</th>
               <th>Mô tả</th>
-
-              <th class="text-center">Thao tác</th>
+              <th class="text-end">
+                <div class="mr-2">Thao tác</div>
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(category, index) in categories" :key="index">
-              <td class="text-center">{{ category.id }}</td>
+              <td class="text-center">{{ index + 1 }}</td>
               <td>{{ category.name }}</td>
-              <td>{{ category.description }}</td>
+              <td>{{ category.description || '_' }}</td>
               <td>
-                <div class="flex items-center justify-center gap-2">
+                <div class="flex items-center justify-end gap-2">
                   <button
                     @click="changeSelectEditCategory(category.id)"
                     class="px-3 py-2 rounded-md bg-primaryOpacityColor text-primaryColor transition-all duration-300 hover:bg-primaryColor hover:text-whiteColor"
@@ -56,23 +63,33 @@
             </tr>
           </tbody>
         </table>
-        <Pagination class="mt-4 px-4" :meta="meta" />
+        <Pagination class="mt-4 px-4" :meta="meta" :changePage="changePage" />
       </div>
     </template>
 
-    <CreateCategoryModal :isCreateModalOpen="isCreateModalOpen" :closeCreateModal="closeCreateModal" :fetchData="fetchData" />
+    <CreateCategoryModal
+      :isCreateModalOpen="isCreateModalOpen"
+      :length="categories.length"
+      :changePage="changePage"
+      :options="options"
+      :closeCreateModal="closeCreateModal"
+      :fetchData="fetchData"
+    />
     <EditCategoryModal :isEditModalOpen="isEditModalOpen" :selectCategory="selectEditCategory" :closeEditModal="closeEditModal" :fetchData="fetchData" />
     <DeleteCategoryModal
       :isDeleteModalOpen="isDeleteModalOpen"
       :selectCategory="selectDeleteCategory"
       :closeDeleteModal="closeDeleteModal"
+      :length="categories.length"
+      :changePage="changePage"
+      :options="options"
       :fetchData="fetchData"
     />
   </div>
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, onMounted, ref, watch } from 'vue'
 import { useUserStore, useToastStore } from '@/stores'
 import { getListCategory } from '@/webServices/categoryService'
 
@@ -91,6 +108,12 @@ export default defineComponent({
     const loading = ref(false)
     const categories = ref([])
 
+    const options = ref({
+      pageNumber: 0,
+      pageSize: 8,
+      sortOrder: 'asc'
+    })
+
     const meta = ref({
       first: null,
       last: null,
@@ -100,11 +123,13 @@ export default defineComponent({
       totalElements: null,
       totalPages: null
     })
+
     const selectEditCategory = ref({
       id: null,
       name: '',
       description: ''
     })
+
     const selectDeleteCategory = ref({
       id: null,
       name: '',
@@ -151,14 +176,29 @@ export default defineComponent({
       openDeleteModal()
     }
 
+    const changePage = page => {
+      options.value.pageNumber = page
+    }
+
+    const updateSortOrder = order => {
+      options.value.sortOrder = order
+    }
+
     const fetchData = async () => {
-      const res = await getListCategory()
-      console.log(res)
+      const res = await getListCategory(options.value)
       if (res.success) {
         categories.value = res.dtoList
         meta.value = res.pageDto
       }
     }
+
+    watch(
+      options,
+      async newOptions => {
+        await fetchData()
+      },
+      { deep: true }
+    )
 
     onMounted(async () => {
       loading.value = true
@@ -175,6 +215,7 @@ export default defineComponent({
       isCreateModalOpen,
       isEditModalOpen,
       isDeleteModalOpen,
+      options,
       openCreateModal,
       closeCreateModal,
       openEditModal,
@@ -183,6 +224,8 @@ export default defineComponent({
       closeDeleteModal,
       changeSelectEditCategory,
       changeSelectDeleteCategory,
+      changePage,
+      updateSortOrder,
       fetchData
     }
   },
@@ -218,8 +261,23 @@ export default defineComponent({
   @apply border-b border-borderColor;
 }
 
-.payment-container {
-  @apply sticky bottom-0 px-4 py-8 bg-whiteColor rounded-md border border-borderColor shadow-shadow06;
+.select,
+.filter-input {
+  min-height: 40px;
+  height: 40px;
+  font-size: 16px;
+  padding: 0 16px;
+  border: 1px solid rgba(204, 204, 204, 1);
+  @apply text-headingColor bg-whiteColor rounded-md;
+}
+
+.filter-input {
+  @apply w-32;
+}
+
+.select:focus,
+.filter-input:focus {
+  @apply border-primaryColor outline-none;
 }
 
 .ui-checkbox {

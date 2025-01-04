@@ -1,5 +1,6 @@
 <template>
   <header class="px-6 py-5">
+    <div class="text-lg uppercase font-extrabold">{{ currentTitle }}</div>
     <ul class="flex items-center justify-end">
       <li class="has-child-menu">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -44,8 +45,9 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
 import { useHomeStore, useUserStore } from '@/stores'
+import { useRoute } from 'vue-router'
 
 import UserMenu from '@/components/Header/UserMenu.vue'
 
@@ -54,9 +56,32 @@ export default defineComponent({
   setup() {
     const homeStore = useHomeStore()
     const userStore = useUserStore()
+    const route = useRoute()
+
+    const titlesMap = {
+      home: 'Bảng điều khiển',
+      categories: 'Danh mục',
+      products: 'Danh sách sản phẩm',
+      orders: 'Đơn hàng',
+      'order-details': 'Chi tiết đơn hàng',
+      'create-product': 'Thêm sản phẩm',
+      'edit-product': 'Chỉnh sửa sản phẩm',
+      inventory: 'Kho',
+      shipping: 'Vận chuyển',
+      purchase: 'Thanh toán',
+      accounts: 'Quản lý tài khoản',
+      stores: 'Store',
+      'request-store': 'Yêu cầu bán hàng',
+      reviews: 'Đánh giá',
+      statistic: 'Thống kê',
+      setting: 'Cài đặt'
+    }
+
+    const currentTitle = computed(() => titlesMap[route.name] || 'Chào mừng!')
 
     return {
-      userStore
+      userStore,
+      currentTitle
     }
   }
 })
@@ -65,8 +90,7 @@ export default defineComponent({
 <style scoped>
 header {
   position: relative;
-  box-shadow: 0 20px 34px rgba(0, 0, 0, 0.05);
-  @apply flex items-center justify-end bg-whiteColor;
+  @apply flex items-center justify-between;
 }
 
 header.header-sticky {
