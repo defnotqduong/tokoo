@@ -1,6 +1,5 @@
 <template>
   <header class="px-6 py-5">
-    <div class="text-lg uppercase font-extrabold">{{ currentTitle }}</div>
     <ul class="flex items-center justify-end">
       <li class="has-child-menu">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -65,7 +64,7 @@ export default defineComponent({
       orders: 'Đơn hàng',
       'order-details': 'Chi tiết đơn hàng',
       'create-product': 'Thêm sản phẩm',
-      'edit-product': 'Chỉnh sửa sản phẩm',
+      'edit-product': 'Cập nhật sản phẩm',
       inventory: 'Kho',
       shipping: 'Vận chuyển',
       purchase: 'Thanh toán',
@@ -90,7 +89,8 @@ export default defineComponent({
 <style scoped>
 header {
   position: relative;
-  @apply flex items-center justify-between;
+  box-shadow: 0 20px 34px rgba(0, 0, 0, 0.05);
+  @apply h-[74px] flex items-center justify-end bg-whiteColor border-b border-borderColor;
 }
 
 header.header-sticky {

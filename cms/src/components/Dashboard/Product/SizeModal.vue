@@ -4,7 +4,7 @@
     <div class="modal" role="dialog">
       <div class="modal-box max-w-[800px] bg-white py-6 px-8">
         <div>
-          <h4 class="text-xl font-bold">{{ !isEditting ? 'Thêm Size' : 'Chỉnh sửa Size' }}</h4>
+          <h4 class="text-xl font-bold">{{ !isEditting ? 'Thêm Size' : 'Cập nhật Size' }}</h4>
         </div>
         <form>
           <template v-if="!isEditting">
@@ -50,7 +50,7 @@
                   }
                 ]"
               >
-                Tạo
+                Thêm
               </button>
             </div>
           </template>
@@ -117,7 +117,7 @@
                   }
                 ]"
               >
-                Sửa
+                Cập nhật
               </button>
             </div>
           </template>
@@ -351,7 +351,7 @@ export default defineComponent({
       if (res.success) {
         toastStore.showToast({
           type: 'success',
-          message: 'Chỉnh sửa size thành công',
+          message: 'Cập nhật size thành công',
           timeout: 3000
         })
         props.fetchData(props.variantId)

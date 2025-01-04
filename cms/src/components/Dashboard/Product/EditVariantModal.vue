@@ -4,7 +4,7 @@
     <div class="modal" role="dialog">
       <div class="modal-box max-w-[800px] bg-white py-6 px-8">
         <div>
-          <h4 class="text-xl font-bold">Chỉnh sửa biến thể</h4>
+          <h4 class="text-xl font-bold">Cập nhật biến thể</h4>
         </div>
         <form class="form">
           <div class="grid grid-cols-12 gap-4">
@@ -75,7 +75,7 @@
                 { 'cursor-not-allowed': isSubmitting }
               ]"
             >
-              Lưu
+              Cập nhật
             </button>
           </div>
         </form>
@@ -210,7 +210,7 @@ export default defineComponent({
       if (res.success) {
         toastStore.showToastModal({
           type: 'success',
-          message: 'Chỉnh sửa biến thể thành công',
+          message: 'Cập nhật biến thể thành công',
           timeout: 3000
         })
         props.fetchData()

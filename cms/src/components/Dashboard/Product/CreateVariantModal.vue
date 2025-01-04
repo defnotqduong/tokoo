@@ -67,7 +67,7 @@
                 { 'cursor-not-allowed': isSubmitting }
               ]"
             >
-              Tạo
+              Thêm
             </button>
           </div>
         </form>

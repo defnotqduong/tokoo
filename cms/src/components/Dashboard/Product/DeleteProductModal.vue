@@ -32,6 +32,9 @@ export default defineComponent({
     isDeleteModalOpen: Boolean,
     selectProduct: Object,
     fetchData: Function,
+    length: Number,
+    changePage: Function,
+    options: Object,
     closeDeleteModal: Function
   },
   setup(props) {
@@ -55,6 +58,11 @@ export default defineComponent({
           message: 'Xóa danh mục thành công',
           timeout: 3000
         })
+
+        if (props.length === 1) {
+          props.changePage(props.options.pageNumber - 1)
+        }
+
         props.fetchData()
       }
       close()

@@ -130,7 +130,7 @@ export default defineComponent({
       if (res.success) {
         toastStore.showToastModal({
           type: 'success',
-          message: 'Chỉnh sửa danh mục thành công',
+          message: 'Cập nhật danh mục thành công',
           timeout: 3000
         })
         props.fetchData()

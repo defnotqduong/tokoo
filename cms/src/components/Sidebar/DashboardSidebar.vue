@@ -1,6 +1,6 @@
 <template>
   <div class="side-bar custom-scrollbar">
-    <div class="px-4 py-5 flex items-center border-b border-borderColor">
+    <div class="h-[74px] px-4 py-5 flex items-center border-b border-borderColor">
       <router-link :to="{ name: 'home' }" class="text-primaryColor">
         <svg xmlns="http://www.w3.org/2000/svg" width="136" height="32" viewBox="0 0 117 31" fill="currentColor">
           <path
