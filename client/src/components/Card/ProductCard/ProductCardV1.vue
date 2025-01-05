@@ -1,33 +1,41 @@
 <template>
   <div class="product-card">
     <div class="product-image">
-      <router-link :to="{ name: 'product-detail', params: { slug: 'slug' } }">
-        <img src="@/assets/images/product-1.jpg" alt="product image" />
+      <router-link :to="{ name: 'product-detail', params: { slug: `${generateSlug(product?.productName || '')}-${product?.productId}` } }">
+        <img :src="product?.thumbnail" alt="product image" />
       </router-link>
     </div>
-    <div>
-      <span class="text-sm text-bodyColor">Rau củ</span>
-      <router-link :to="{ name: 'product-detail', params: { slug: 'slug' } }">
+    <div class="pt-6">
+      <span class="text-sm text-bodyColor">{{ product?.categoryDTO?.name }}</span>
+      <router-link :to="{ name: 'product-detail', params: { slug: `${generateSlug(product?.productName || '')}-${product?.productId}` } }">
         <h5 class="mt-1 mb-2 text-headingColor font-bold leading-tight line-clamp-2 hover:text-primaryColor transition-all duration-300">
-          Cánh gà Buffalo giòn truyền thống Foster Farms
+          {{ product?.productName }}
         </h5>
       </router-link>
       <div class="flex items-center gap-2">
-        <StarRating :star="3.5" :size="14" />
-        <span class="text-sm text-bodyColor">(4 đánh giá)</span>
+        <StarRating :star="product?.averageRating || 5" :size="14" />
+        <span class="text-sm text-bodyColor">({{ product?.reviewNumber }} đánh giá)</span>
       </div>
       <div class="mt-1 text-sm text-bodyColor">
         Bởi
-        <router-link :to="{ name: 'home' }" class="text-primaryColor font-bold transition-all duration-300 hover:text-secondaryColor">Tokoo Shop</router-link>
+        <span class="text-primaryColor font-bold transition-all duration-300 hover:text-secondaryColor">{{ product?.storeName }}</span>
       </div>
       <div class="mt-2 flex items-center">
-        <span class="text-primaryColor font-bold">{{ formatPrice(128000) }}</span>
-        <!-- <span class="ml-2 text-sm text-bodyColor font-bold opacity-75 line-through">{{ formatPrice(132500) }}</span> -->
+        <span class="text-primaryColor font-bold">{{ formatPrice(product?.price) }}</span>
+        <span v-if="product?.discount > 0" class="ml-2 text-sm text-bodyColor font-bold opacity-75 line-through">{{ formatPrice(product?.specialPrice) }}</span>
         <ButtonV2 class="ml-auto" :func="addToCart" />
       </div>
     </div>
-    <div class="absolute top-0 left-0 px-3 py-[2px] bg-primaryColor rounded-tl-xl rounded-br-xl">
-      <span class="text-xs text-whiteColor leading-none">Mới</span>
+    <div>
+      <div v-if="product?.quantity > 100" class="absolute top-0 left-0 px-3 py-[2px] bg-secondaryColor rounded-tl-xl rounded-br-xl">
+        <span class="text-xs text-whiteColor leading-none">Bán chạy</span>
+      </div>
+      <div v-else-if="product?.discount > 0" class="absolute top-0 left-0 px-3 py-[2px] bg-pinkColor rounded-tl-xl rounded-br-xl">
+        <span class="text-xs text-whiteColor leading-none">Giảm {{ product?.discount }} %</span>
+      </div>
+      <div v-else class="absolute top-0 left-0 px-3 py-[2px] bg-primaryColor rounded-tl-xl rounded-br-xl">
+        <span class="text-xs text-whiteColor leading-none">Mới</span>
+      </div>
     </div>
     <div class="product-actions">
       <div class="flex flex-col gap-1">
@@ -65,12 +73,13 @@
 <script>
 import { defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
-import { formatPrice } from '@/utils'
+import { formatPrice, generateSlug } from '@/utils'
 
 import StarRating from '@/components/StarRating/StarRating.vue'
 import ButtonV2 from '@/components/Button/ButtonV2.vue'
 export default defineComponent({
   components: { StarRating, ButtonV2 },
+  props: { product: Object },
   setup() {
     const router = useRouter()
 
@@ -82,12 +91,7 @@ export default defineComponent({
 
     const addToCart = () => {}
 
-    return {
-      formatPrice,
-      redirect,
-      addToWishList,
-      addToCart
-    }
+    return { generateSlug, formatPrice, redirect, addToWishList, addToCart }
   }
 })
 </script>

@@ -5,6 +5,14 @@ export const formatPrice = price => {
   }).format(price)
 }
 
+export const generateSlug = name => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+}
+
 export const formatDuration = seconds => {
   const hrs = Math.floor(seconds / 3600)
   let mins

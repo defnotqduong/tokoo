@@ -13,9 +13,9 @@
         </li>
       </ul>
     </div>
-    <Description v-if="nav[0].isActive" />
-    <Shop v-if="nav[1].isActive" />
-    <Review v-if="nav[2].isActive" />
+    <Description :description="product?.description" v-if="nav[0].isActive" />
+    <Shop :store="product?.storeName" v-if="nav[1].isActive" />
+    <Review :reviews="reviews" v-if="nav[2].isActive" />
   </div>
 </template>
 
@@ -27,6 +27,7 @@ import Shop from '@/components/ProductDetail/Shop.vue'
 import Review from '@/components/ProductDetail/Review.vue'
 export default defineComponent({
   components: { Description, Shop, Review },
+  props: { product: Object, reviews: Array },
   setup() {
     const nav = reactive([
       {

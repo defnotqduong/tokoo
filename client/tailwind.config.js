@@ -22,6 +22,7 @@ export default {
         whiteColor: '#FFFFFF',
         grayLightColor: '#F6F6F6',
         blackOpacityColor: 'rgba(0, 0, 0, 0.04)',
+        secondaryOpacityColor: 'rgba(253, 192, 64, 0.04)',
         primaryOpacityColor: '#DEF9EC',
         dangerColor: '#FF0003',
         greenOpacityColor: '#DEF9EC',
@@ -56,11 +57,47 @@ export default {
         shadow05: '0px 15px 30px -2px rgba(0,0,0,0.1)',
         shadow06: '5px 5px 15px rgba(0, 0, 0, 0.05)',
         shadow07: '5px 5px 15px rgba(0, 0, 0, 0.15)'
-      }
+      },
+      typography: theme => ({
+        DEFAULT: {
+          css: {
+            '--tw-prose-bullets': theme('colors.headingColor'),
+            ul: {
+              li: {
+                margin: '0px'
+              }
+            },
+            li: {
+              p: {
+                margin: '0px'
+              }
+            },
+            p: {
+              lineHeight: '1.5',
+              margin: '0px',
+              paddingBottom: '8px'
+            },
+            h1: {
+              color: theme('colors.headingColor'),
+              marginTop: '0px',
+              marginBottom: '16px'
+            },
+            h2: {
+              color: theme('colors.headingColor'),
+              marginTop: '0px',
+              marginBottom: '16px'
+            },
+            strong: {
+              fontWeight: '800',
+              color: theme('colors.headingColor')
+            }
+          }
+        }
+      })
     }
   },
   daisyui: {
     themes: []
   },
-  plugins: [require('daisyui'), require('tailwindcss-primeui')]
+  plugins: [require('daisyui'), require('tailwindcss-primeui'), require('@tailwindcss/typography')]
 }

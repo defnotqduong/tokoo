@@ -12,41 +12,39 @@
         <form class="flex items-center justify-start gap-2">
           <input
             type="text"
+            v-model="options.keyword"
             placeholder="Tìm kiếm sản phẩm..."
             class="sm:min-w-[360px] h-10 px-4 text-headingColor font-semibold line-clamp-1 bg-whiteColor border border-whiteColor outline-none rounded-lg shadow-shadow02 transition-all duration-300 placeholder:text-bodyColor focus:border-primaryColor"
           />
-          <PrimaryButton :content="'Tìm kiếm'" />
+          <PrimaryButton :content="'Tìm kiếm'" :func="fetchData" />
         </form>
       </div>
     </div>
     <div class="py-6 flex items-center justify-between">
-      <div>Hiển thị 100 sản phẩm dành cho bạn!</div>
+      <div>Hiển thị {{ meta?.totalElements }} sản phẩm dành cho bạn!</div>
       <form class="flex items-center gap-3">
         <div>
-          <select class="select w-full">
-            <option value="" selected disabled>Sắp xếp theo</option>
-            <option value="">Mặc định</option>
-            <option value="latest">Mới nhất</option>
-            <option value="popularity">Phổ biến</option>
-            <option value="price_asc">Giá: Từ thấp đến cao</option>
-            <option value="price_desc">Giá: Từ cao đến thấp</option>
+          <select class="select w-full min-w-52" @change="handleSortChange($event)">
+            <option value="" selected class="line-clamp-1">Mặc định</option>
+            <option value="latest" class="line-clamp-1">Mới nhất</option>
+            <option value="popularity" class="line-clamp-1">Phổ biến</option>
+            <option value="price" class="line-clamp-1">Giá: Từ thấp đến cao</option>
           </select>
         </div>
         <div>
-          <select class="select w-full">
-            <option value="" selected disabled>Danh mục</option>
-            <option value="latest">Latest</option>
-            <option value="popularity">Popularity</option>
-            <option value="price_asc">Price: low to high</option>
-            <option value="price_desc">Price: high to low</option>
+          <select class="select w-full min-w-52" @change="handleCategoryChange">
+            <option value="" selected>Tất cả</option>
+            <option v-for="category in categories" :key="category.id" :value="category.id" class="line-clamp-1">
+              {{ category.name }}
+            </option>
           </select>
         </div>
         <div class="flex items-center gap-3">
-          <input type="text" name="" id="" placeholder="Tối thiểu" class="filter-input" />
+          <input type="text" name="" id="" placeholder="Tối thiểu" class="filter-input" v-model="options.minPrice" />
           <span>-</span>
-          <input type="text" name="" id="" placeholder="Tối đa" class="filter-input" />
+          <input type="text" name="" id="" placeholder="Tối đa" class="filter-input" v-model="options.maxPrice" />
         </div>
-        <button class="px-3 h-10 rounded-lg bg-primaryColor text-whiteColor">
+        <button @click.prevent="fetchData" class="px-3 h-10 rounded-lg bg-primaryColor text-whiteColor">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="20" height="20">
             <path
               fill-rule="evenodd"
@@ -69,13 +67,42 @@ import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 export default defineComponent({
   components: { PrimaryButton },
   props: {
-    isShowFilter: Boolean,
-    toggleFilter: Function,
-    fetchData: Function
+    fetchData: Function,
+    categories: Array,
+    options: Object,
+    meta: Object
   },
   setup(props) {
+    const handleSortChange = event => {
+      const value = event.target.value
+
+      if (value === 'latest') {
+        props.options.sortBy = 'id'
+        props.options.sortOrder = 'desc'
+      } else if (value === 'popularity') {
+        props.options.sortBy = 'quantity'
+        props.options.sortOrder = 'desc'
+      } else if (value === 'price') {
+        props.options.sortBy = 'specialPrice'
+        props.options.sortOrder = 'asc'
+      } else {
+        props.options.sortBy = 'id'
+        props.options.sortOrder = 'asc'
+      }
+    }
+
+    const handleCategoryChange = event => {
+      const selectedCategoryId = event.target.value
+
+      props.options.categoryId = selectedCategoryId === '' ? null : selectedCategoryId
+
+      props.options.categoryId = selectedCategoryId
+    }
+
     return {
-      formatPrice
+      formatPrice,
+      handleSortChange,
+      handleCategoryChange
     }
   }
 })

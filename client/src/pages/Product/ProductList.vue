@@ -1,18 +1,21 @@
 <template>
   <section class="mt-6">
     <div class="container mx-auto px-4">
-      <ProductListHeader :isShowFilter="isShowFilter" :toggleFilter="toggleFilter" :fetchData="fetchData" />
+      <ProductListHeader :fetchData="fetchData" :options="options" :categories="categories" :meta="meta" />
 
-      <template v-if="!loading">
+      <div v-if="loading" class="min-h-[60vh] flex items-center justify-center text-primaryColor">
+        <span class="loading loading-spinner loading-md"></span>
+      </div>
+      <template v-else>
         <div v-if="products.length === 0">Không có sản phẩm</div>
         <div v-else class="relative">
           <div class="container mx-auto px-4">
             <div class="grid grid-cols-12 gap-2">
-              <div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3" v-for="i in 10" :key="i">
-                <ProductCardV1 />
+              <div class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3" v-for="(product, index) in products" :key="index">
+                <ProductCardV1 :product="product" class="h-full" />
               </div>
             </div>
-            <Pagination />
+            <Pagination class="mt-10" :meta="meta" :changePage="changePage" />
           </div>
         </div>
       </template>
@@ -21,8 +24,10 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { findProducts } from '@/webServices/productService'
+import { getAllCategory } from '@/webServices/categoryService'
 
 import ProductListHeader from '@/components/Header/ProductListHeader.vue'
 import ProductCardV1 from '@/components/Card/ProductCard/ProductCardV1.vue'
@@ -35,23 +40,52 @@ export default defineComponent({
     const router = useRouter()
 
     const loading = ref(false)
-    const products = ref([1])
+    const products = ref([])
+    const categories = ref([])
 
-    const isShowFilter = ref(false)
+    const options = ref({
+      pageNumber: 0,
+      pageSize: 12,
+      keyword: '',
+      sortBy: 'id',
+      sortOrder: 'asc',
+      categoryId: null,
+      minPrice: null,
+      maxPrice: null
+    })
 
-    const toggleFilter = () => {
-      isShowFilter.value = !isShowFilter.value
+    const meta = ref({
+      first: null,
+      last: null,
+      number: null,
+      numberOfElements: null,
+      size: null,
+      totalElements: null,
+      totalPages: null
+    })
+
+    const changePage = async page => {
+      options.value.pageNumber = page
+      await fetchData()
     }
 
-    const fetchData = async () => {}
-
-    return {
-      loading,
-      products,
-      isShowFilter,
-      toggleFilter,
-      fetchData
+    const fetchData = async () => {
+      const res = await findProducts(options.value)
+      products.value = res.dtoList
+      meta.value = res.pageDto
     }
+
+    onMounted(async () => {
+      loading.value = true
+      const [categoriesData, productsData] = await Promise.all([getAllCategory(), findProducts(options.value)])
+      console.log(productsData)
+      products.value = productsData.dtoList
+      meta.value = productsData.pageDto
+      categories.value = categoriesData.dtoList
+      loading.value = false
+    })
+
+    return { options, loading, meta, products, categories, fetchData, changePage }
   },
   methods: {
     scrollToTop() {

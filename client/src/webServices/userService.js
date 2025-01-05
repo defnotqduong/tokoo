@@ -41,3 +41,7 @@ export const deleteAddress = id => {
 export const requestCreateStore = dataPost => {
   return connectServer[api.REQUEST_CREATE_STORE_API.method](api.REQUEST_CREATE_STORE_API.url, dataPost)
 }
+
+export const getStoreRequestState = () => {
+  return connectServer[api.GET_STORE_REQUEST_STATE_API.method](api.GET_STORE_REQUEST_STATE_API.url)
+}

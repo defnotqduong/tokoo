@@ -76,9 +76,37 @@ export default {
     url: '/user/create-store-request'
   },
 
+  GET_STORE_REQUEST_STATE_API: {
+    method: 'get',
+    url: '/user/store-request-state'
+  },
+
+  GET_ALL_CATEGORY_API: {
+    method: 'get',
+    url: '/categories/all'
+  },
+
   // Cart
   GET_CART_API: {
     method: 'get',
     url: '/cart/user'
+  },
+  // Product
+  FIND_PRODUCT_API: {
+    method: 'get',
+    url: '/product/public/search'
+  },
+
+  GET_PRODUCT_INFO_API: {
+    method: 'get',
+    url: '/product/public'
+  },
+  GET_LIST_VARIANT_API: {
+    method: 'get',
+    url: '/public/variant'
+  },
+  GET_LIST_SIZE_API: {
+    method: 'get',
+    url: '/public/size'
   }
 }

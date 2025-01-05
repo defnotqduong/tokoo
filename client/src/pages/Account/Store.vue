@@ -3,8 +3,20 @@
     <div class="mb-4 pb-4 border-b-[1px] border-borderColor flex items-center justify-between">
       <h4 class="text-xl text-headingColor font-extrabold">Đăng kí bán hàng</h4>
     </div>
-    <div>
-      <form class="form">
+    <div v-if="loading" class="min-h-[40vh] flex items-center justify-center text-primaryColor">
+      <span class="loading loading-spinner loading-md"></span>
+    </div>
+    <template v-else>
+      <div v-if="state?.requesting && state?.approved">
+        Chúc mừng! Yêu cầu đăng ký bán hàng của bạn đã được phê duyệt. Hãy truy cập ngay trang quản lý bán hàng để bắt đầu.
+        <div class="mt-6 flex items-center justify-center">
+          <PrimaryButton :content="'Bắt đầu bán hàng'" :func="redirect" />
+        </div>
+      </div>
+      <div v-else-if="state?.requesting && !state?.approved">
+        Cảm ơn bạn đã gửi yêu cầu đăng ký bán hàng. Hiện tại, yêu cầu của bạn đang được xem xét. Chúng tôi sẽ phản hồi trong thời gian sớm nhất.
+      </div>
+      <form v-else class="form">
         <div class="input-group">
           <label for="name" class="title"
             >Tên shop
@@ -48,14 +60,15 @@
           <PrimaryButton :content="'Yêu cầu'" :func="request" :loading="isSubmitting" />
         </div>
       </form>
-    </div>
+    </template>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, reactive, toRefs } from 'vue'
+import { defineComponent, ref, reactive, toRefs, onMounted } from 'vue'
 import { useToastStore } from '@/stores'
-import { requestCreateStore } from '@/webServices/userService'
+import { requestCreateStore, getStoreRequestState } from '@/webServices/userService'
+import { BASE_CMS_URL } from '@/configs/baseUrl.js'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 export default defineComponent({
@@ -63,7 +76,11 @@ export default defineComponent({
   setup() {
     const toastStore = useToastStore()
 
+    const loading = ref(false)
+
     const isSubmitting = ref(false)
+
+    const state = ref(null)
 
     const requestForm = reactive({
       name: '',
@@ -120,6 +137,10 @@ export default defineComponent({
       }
     }
 
+    const redirect = () => {
+      window.open(BASE_CMS_URL, '_blank')
+    }
+
     const request = async () => {
       isSubmitting.value = true
       validateName()
@@ -149,7 +170,22 @@ export default defineComponent({
       isSubmitting.value = false
     }
 
-    return { isSubmitting, errors, ...toRefs(requestForm), validateName, validateDesc, validateAddress, request }
+    const fetchData = async () => {
+      const res = await getStoreRequestState()
+      console.log(res)
+
+      if (res.success) {
+        state.value = res
+      }
+    }
+
+    onMounted(async () => {
+      loading.value = true
+      await fetchData()
+      loading.value = false
+    })
+
+    return { isSubmitting, errors, state, loading, redirect, ...toRefs(requestForm), validateName, validateDesc, validateAddress, request }
   },
   methods: {
     scrollToTop() {

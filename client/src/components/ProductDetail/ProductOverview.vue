@@ -3,7 +3,7 @@
     <div class="mt-6 grid grid-cols-12 gap-8">
       <div class="col-span-5">
         <div class="mb-6 p-8 border border-borderColor rounded-xl">
-          <img src="@/assets/images/product-1.jpg" class="w-full h-full object-cover object-center" alt="product image" />
+          <img :src="product?.thumbnail" class="w-full h-full object-cover object-center" alt="product image" />
         </div>
         <Swiper :modules="modules" :slides-per-view="4" :navigation="true" :speed="800" :loop="true" class="slider">
           <SwiperSlide v-for="(i, index) in 10" :key="index">
@@ -14,43 +14,54 @@
         </Swiper>
       </div>
       <div class="col-span-7">
-        <span class="px-4 py-1 text-sm text-pinkColor font-bold rounded-md bg-pinkOpacityColor">Giảm giá</span>
-        <h3 class="mt-3 mb-2 text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-headingColor font-extrabold">Quinoa Hữu Cơ Seeds of Change, Nâu</h3>
+        <span v-if="product?.discount > 0" class="px-4 py-1 text-sm text-pinkColor font-bold rounded-md bg-pinkOpacityColor"
+          >Giảm {{ product?.discount }} %</span
+        >
+        <span v-else-if="product?.quantity > 100" class="px-4 py-1 text-sm text-secondaryColor font-bold rounded-md bg-secondaryOpacityColor">Bán chạy</span>
+        <span v-else class="px-4 py-1 text-sm text-primaryColor font-bold rounded-md bg-primaryOpacityColor">Mới</span>
+        <h3 class="mt-3 mb-2 text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-headingColor font-extrabold">{{ product?.productName }}</h3>
         <div class="flex items-center justify-start gap-2">
-          <StarRating :star="4" :size="12" />
-          <span class="text-bodyColor text-sm">(32 đánh giá)</span>
+          <StarRating :star="product?.averageRating || 5" :size="12" />
+          <span class="text-bodyColor text-sm">({{ product?.reviewNumber }} đánh giá)</span>
         </div>
         <div class="mt-5 flex items-end">
-          <span class="text-lg md:text-xl lg:text-2xl xl:text-3xl text-primaryColor font-bold">{{ formatPrice(128000) }}</span>
-          <span class="ml-4 md:text-lg lg:text-xl xl:text-2xl text-bodyColor font-bold opacity-75 line-through">{{ formatPrice(132500) }}</span>
+          <span class="text-lg md:text-xl lg:text-2xl xl:text-3xl text-primaryColor font-bold">{{ formatPrice(product?.price) }}</span>
+          <span v-if="product?.discount > 0" class="ml-4 md:text-lg lg:text-xl xl:text-2xl text-bodyColor font-bold opacity-75 line-through">{{
+            formatPrice(product?.specialPrice)
+          }}</span>
         </div>
         <p class="mt-6 mb-10 text-headingColor">
-          Một sản phẩm thực phẩm dinh dưỡng cao, được làm từ hạt quinoa hữu cơ nguyên chất. Sản phẩm này là sự kết hợp giữa hương vị thơm ngon tự nhiên và giá
-          trị dinh dưỡng vượt trội, giàu protein, chất xơ, và các loại vitamin, khoáng chất cần thiết cho cơ thể.
+          {{ product?.summary }}
         </p>
         <div class="grid grid-cols-12">
-          <div class="col-span-2">Màu sắc:</div>
+          <div class="col-span-2 font-bold">Thể loại:</div>
           <div class="col-span-10">
             <div class="grid grid-cols-12 gap-3">
-              <div class="col-span-6" v-for="i in 8" :key="i">
-                <div class="px-4 py-2 rounded-md border border-borderColor transition-all duration-300 cursor-pointer hover:border-primaryColor">
-                  TQJG00DW.Đen Trầm V2
-                </div>
+              <div class="col-span-3" v-for="(variant, i) in variants" :key="i">
+                <button
+                  class="w-full px-4 py-2 text-center rounded-md border border-borderColor transition-all duration-300 cursor-pointer"
+                  :class="{ 'border-primaryColor': variant.id === selectedVariant.id, 'hover:border-primaryColor': variant.id !== selectedVariant.id }"
+                  @click="selectedVariant = variant"
+                >
+                  {{ variant?.attribute }}
+                </button>
               </div>
             </div>
           </div>
         </div>
         <div class="mt-8 grid grid-cols-12">
-          <div class="col-span-2">Kích cỡ:</div>
+          <div class="col-span-2 font-bold">Size:</div>
           <div class="col-span-10">
             <div class="flex flex-wrap items-center gap-3">
-              <div
-                class="px-6 py-2 rounded-md border border-borderColor transition-all duration-300 cursor-pointer hover:border-primaryColor"
-                v-for="i in 10"
+              <button
+                class="px-6 py-2 rounded-md border transition-all duration-300 cursor-pointer hover:border-primaryColor"
+                :class="{ 'border-primaryColor': size.id === selectedSize.id, 'hover:border-primaryColor': size.id !== selectedSize.id }"
+                v-for="(size, i) in selectedVariant?.sizeDTOS"
                 :key="i"
+                @click="selectedSize = size"
               >
-                {{ i + 25 }}
-              </div>
+                {{ size?.size }}
+              </button>
             </div>
           </div>
         </div>
@@ -75,7 +86,7 @@
                   </svg>
                 </button>
               </div>
-              <span> 9038 sản phẩm có sẵn</span>
+              <span> {{ selectedSize?.stock }} sản phẩm có sẵn</span>
             </div>
           </div>
         </div>
@@ -116,7 +127,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { formatPrice } from '@/utils'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Autoplay } from 'swiper/modules'
@@ -128,11 +139,31 @@ import ButtonV3 from '@/components/Button/ButtonV3.vue'
 
 export default defineComponent({
   components: { Swiper, SwiperSlide, StarRating, ButtonV3 },
-  setup() {
-    return {
-      formatPrice,
-      modules: [Navigation, Autoplay]
+  props: { product: Object, variants: Array },
+  setup(props) {
+    const selectedVariant = ref(null)
+
+    const selectedSize = ref(null)
+
+    const setInitialVariant = () => {
+      if (props.variants && props.variants.length > 0) {
+        selectedVariant.value = { ...props.variants[0] }
+      }
+
+      if (props.variants[0]?.sizeDTOS && props.variants[0]?.sizeDTOS.length > 0) {
+        selectedSize.value = props.variants[0].sizeDTOS[0]
+      }
     }
+
+    watch(
+      () => props.variants,
+      () => {
+        setInitialVariant()
+      },
+      { immediate: true }
+    )
+
+    return { selectedVariant, selectedSize, formatPrice, modules: [Navigation, Autoplay] }
   }
 })
 </script>

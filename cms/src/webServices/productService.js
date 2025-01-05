@@ -8,7 +8,8 @@ export const getListProductForStore = (id, options = {}) => {
 }
 
 export const getProductInfo = id => {
-  return connectServer[api.GET_PRODUCT_INFO_API.method](api.GET_PRODUCT_INFO_API.url + '/' + id)
+  const urlWithQuery = `${api.GET_PRODUCT_INFO_API.url}?id=${encodeURIComponent(id)}`
+  return connectServer[api.GET_PRODUCT_INFO_API.method](urlWithQuery)
 }
 
 export const createProduct = dataPost => {
