@@ -3,12 +3,12 @@
     <div class="mt-6 grid grid-cols-12 gap-8">
       <div class="col-span-5">
         <div class="mb-6 p-8 border border-borderColor rounded-xl">
-          <img :src="product?.thumbnail" class="w-full h-full object-cover object-center" alt="product image" />
+          <img :src="selectedImage" class="w-full h-[500px] object-cover object-center" alt="product image" />
         </div>
-        <Swiper :modules="modules" :slides-per-view="4" :navigation="true" :speed="800" :loop="true" class="slider">
-          <SwiperSlide v-for="(i, index) in 10" :key="index">
+        <Swiper v-if="urls.length > 0" :modules="modules" :slides-per-view="4" :navigation="true" :speed="800" :loop="true" class="slider">
+          <SwiperSlide v-for="(url, index) in urls" :key="index" @click="handleSlideClick(url)">
             <div class="mx-1 p-1 rounded-md border border-borderPrimaryColor cursor-pointer">
-              <img src="@/assets/images/product-1.jpg" alt="" />
+              <img :src="url" alt="Product Image" class="w-32 h-32 object-contain" />
             </div>
           </SwiperSlide>
         </Swiper>
@@ -25,23 +25,31 @@
           <span class="text-bodyColor text-sm">({{ product?.reviewNumber }} đánh giá)</span>
         </div>
         <div class="mt-5 flex items-end">
-          <span class="text-lg md:text-xl lg:text-2xl xl:text-3xl text-primaryColor font-bold">{{ formatPrice(product?.price) }}</span>
+          <span class="text-lg md:text-xl lg:text-2xl xl:text-3xl text-primaryColor font-bold">{{ formatPrice(product?.specialPrice) }}</span>
           <span v-if="product?.discount > 0" class="ml-4 md:text-lg lg:text-xl xl:text-2xl text-bodyColor font-bold opacity-75 line-through">{{
-            formatPrice(product?.specialPrice)
+            formatPrice(product?.price)
           }}</span>
         </div>
         <p class="mt-6 mb-10 text-headingColor">
           {{ product?.summary }}
         </p>
-        <div class="grid grid-cols-12">
+        <div v-if="variants.length > 0" class="grid grid-cols-12">
           <div class="col-span-2 font-bold">Thể loại:</div>
           <div class="col-span-10">
             <div class="grid grid-cols-12 gap-3">
               <div class="col-span-3" v-for="(variant, i) in variants" :key="i">
                 <button
                   class="w-full px-4 py-2 text-center rounded-md border border-borderColor transition-all duration-300 cursor-pointer"
-                  :class="{ 'border-primaryColor': variant.id === selectedVariant.id, 'hover:border-primaryColor': variant.id !== selectedVariant.id }"
-                  @click="selectedVariant = variant"
+                  :class="{
+                    'border-primaryColor text-primaryColor': variant.id === selectedVariant.id,
+                    'hover:border-primaryColor': variant.id !== selectedVariant.id
+                  }"
+                  @click="
+                    () => {
+                      selectedVariant = variant
+                      selectedSize = variant?.sizeDTOS[0]
+                    }
+                  "
                 >
                   {{ variant?.attribute }}
                 </button>
@@ -49,13 +57,13 @@
             </div>
           </div>
         </div>
-        <div class="mt-8 grid grid-cols-12">
+        <div v-if="selectedVariant?.sizeDTOS.length > 0" class="mt-8 grid grid-cols-12">
           <div class="col-span-2 font-bold">Size:</div>
           <div class="col-span-10">
             <div class="flex flex-wrap items-center gap-3">
               <button
                 class="px-6 py-2 rounded-md border transition-all duration-300 cursor-pointer hover:border-primaryColor"
-                :class="{ 'border-primaryColor': size.id === selectedSize.id, 'hover:border-primaryColor': size.id !== selectedSize.id }"
+                :class="{ 'border-primaryColor text-primaryColor': size.id === selectedSize.id, 'hover:border-primaryColor': size.id !== selectedSize.id }"
                 v-for="(size, i) in selectedVariant?.sizeDTOS"
                 :key="i"
                 @click="selectedSize = size"
@@ -70,7 +78,11 @@
           <div class="col-span-10">
             <div class="flex items-center justify-start gap-4">
               <div class="inline-flex items-center border border-borderColor rounded-md">
-                <button class="p-2 text-headingColor">
+                <button
+                  :disabled="selectedQuantity === 1"
+                  @click.prevent="selectedQuantity = selectedQuantity - 1"
+                  :class="['p-2 text-headingColor', selectedQuantity === 1 ? 'cursor-not-allowed' : '']"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32">
                     <g>
                       <g id="minus">
@@ -79,20 +91,26 @@
                     </g>
                   </svg>
                 </button>
-                <input type="text" value="1" class="w-12 text-center border-none outline-none" />
-                <button class="p-2 text-headingColor">
+                <input type="text" value="1" v-model="selectedQuantity" class="w-12 text-center border-none outline-none" />
+                <button @click.prevent="selectedQuantity = selectedQuantity + 1" class="p-2 text-headingColor">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="20" height="20" viewBox="0 0 1920 1920">
                     <path d="M866.332 213v653.332H213v186.666h653.332v653.332h186.666v-653.332h653.332V866.332h-653.332V213z" fill-rule="evenodd" />
                   </svg>
                 </button>
               </div>
-              <span> {{ selectedSize?.stock }} sản phẩm có sẵn</span>
+              <span> {{ selectedSize?.stock || 0 }} sản phẩm có sẵn</span>
             </div>
           </div>
         </div>
+        <p v-if="!userStore.user" class="mt-8 text-dangerColor">Hãy đăng nhập để tiếp tục mua sản phẩm</p>
         <div class="mt-8 flex items-center justify-start gap-3">
           <button
-            class="flex items-center justify-center gap-2 text-whiteColor px-4 h-10 bg-primaryColor rounded-md hover:bg-darkPrimaryColor transition-all duration-300"
+            @click.prevent="addCart"
+            :disabled="!selectedSize?.stock || selectedSize?.stock === 0"
+            :class="[
+              'flex items-center justify-center gap-2 text-whiteColor px-4 h-10 bg-primaryColor rounded-md hover:bg-darkPrimaryColor transition-all duration-300',
+              !selectedSize?.stock || selectedSize?.stock === 0 ? 'cursor-not-allowed' : ''
+            ]"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path
@@ -127,8 +145,11 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref, watch, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { formatPrice } from '@/utils'
+import { useUserStore, useToastStore } from '@/stores'
+import { addToCart, getCart } from '@/webServices/cartService'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Autoplay } from 'swiper/modules'
 import 'swiper/css'
@@ -139,11 +160,20 @@ import ButtonV3 from '@/components/Button/ButtonV3.vue'
 
 export default defineComponent({
   components: { Swiper, SwiperSlide, StarRating, ButtonV3 },
-  props: { product: Object, variants: Array },
+  props: { product: Object, variants: Array, urls: Array },
   setup(props) {
+    const userStore = useUserStore()
+    const toastStore = useToastStore()
+
+    const router = useRouter()
+
+    const selectedImage = ref(props.product?.thumbnail || '')
+
     const selectedVariant = ref(null)
 
     const selectedSize = ref(null)
+
+    const selectedQuantity = ref(1)
 
     const setInitialVariant = () => {
       if (props.variants && props.variants.length > 0) {
@@ -155,6 +185,35 @@ export default defineComponent({
       }
     }
 
+    const handleSlideClick = url => {
+      selectedImage.value = url
+    }
+
+    const addCart = async () => {
+      if (!userStore.user) {
+        router.push({ name: 'auth-login' })
+        return
+      }
+
+      const res = await addToCart({
+        productId: props.product?.productId,
+        sizeId: selectedSize.value?.id,
+        quantity: selectedQuantity.value
+      })
+
+      if (res.success) {
+        toastStore.showToastModal({
+          type: 'success',
+          message: 'Sản phẩm đã được thêm vào giỏ hàng',
+          timeout: 3000
+        })
+
+        selectedSize.value.stock = selectedSize.value.stock - selectedQuantity.value
+        const cartData = await getCart()
+        userStore.setCart(cartData.dto.cartItemDTOS)
+      }
+    }
+
     watch(
       () => props.variants,
       () => {
@@ -163,7 +222,17 @@ export default defineComponent({
       { immediate: true }
     )
 
-    return { selectedVariant, selectedSize, formatPrice, modules: [Navigation, Autoplay] }
+    return {
+      selectedVariant,
+      selectedSize,
+      selectedImage,
+      userStore,
+      selectedQuantity,
+      formatPrice,
+      addCart,
+      handleSlideClick,
+      modules: [Navigation, Autoplay]
+    }
   }
 })
 </script>

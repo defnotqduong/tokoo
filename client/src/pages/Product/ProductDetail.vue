@@ -16,7 +16,7 @@
         </div>
       </div>
       <div class="container mx-auto px-4">
-        <ProductOverview :product="product" :variants="variants" />
+        <ProductOverview :product="product" :variants="variants" :urls="urls" />
         <ProductDetail :product="product" :reviews="reviews" />
         <RelatedProduct class="pt-6" v-if="productSameCategory.length > 0" :products="productSameCategory" />
         <StoreProduct class="pt-6" v-if="productSameStore.length > 0" :products="productSameStore" />
@@ -44,6 +44,7 @@ export default defineComponent({
     const toastStore = useToastStore()
     const loading = ref(false)
 
+    const urls = ref([])
     const product = ref(null)
     const reviews = ref([])
     const variants = ref([])
@@ -65,6 +66,30 @@ export default defineComponent({
         productSameCategory.value = res.productSameCategory
         productSameStore.value = res.productSameStore
       }
+
+      updateImageUrls()
+    }
+
+    const updateImageUrls = () => {
+      const result = []
+
+      if (product.value?.thumbnail) {
+        result.push(product.value?.thumbnail)
+      }
+
+      if (Array.isArray(product.value?.variantDTOS)) {
+        product.value?.variantDTOS.forEach(variant => {
+          if (variant?.imageUrl) {
+            result.push(variant?.imageUrl)
+          }
+        })
+      }
+
+      while (result.length < 4) {
+        result.push(...result)
+      }
+
+      urls.value = result
     }
 
     watch(
@@ -89,7 +114,8 @@ export default defineComponent({
       reviews,
       variants,
       productSameCategory,
-      productSameStore
+      productSameStore,
+      urls
     }
   },
   methods: {

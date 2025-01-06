@@ -1,16 +1,19 @@
 <template>
   <div class="product-card">
     <div class="product-image">
-      <img src="@/assets/images/product-1.jpg" alt="product image" />
+      <img :src="product?.urlImage" alt="product image" />
     </div>
     <div class="flex-1 flex flex-col">
-      <div class="flex items-center justify-between">
-        <span class="text-primaryColor font-semibold line-clamp-1">Cánh gà Buffalo giòn truyền thống Foster Farms</span>
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-primaryColor font-semibold line-clamp-1">{{ product?.productDTO?.productName }}</span>
+          <span class="text-bodyColor">{{ product?.variantDTO?.name }} {{ product?.size }}</span>
+        </div>
         <div class="ml-2 text-headingColor font-semibold">
-          {{ formatPrice(128000 * 6) }}
+          {{ formatPrice(product?.productPrice) }}
         </div>
       </div>
-      <span>Số lượng: 6</span>
+      <span>Số lượng: {{ product?.quantity }}</span>
     </div>
   </div>
 </template>
@@ -20,7 +23,7 @@ import { defineComponent } from 'vue'
 import { formatPrice } from '@/utils'
 export default defineComponent({
   props: { product: Object },
-  setup() {
+  setup(props) {
     return {
       formatPrice
     }

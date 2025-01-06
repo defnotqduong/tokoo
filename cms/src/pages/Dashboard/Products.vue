@@ -25,7 +25,7 @@
                   <th class="text-center">STT</th>
                   <th>Sản phẩm</th>
                   <th>Thể loại</th>
-                  <th>Tổng quan</th>
+                  <th class="max-w-[400px]">Tổng quan</th>
                   <th>Giá gốc</th>
                   <th>Discount</th>
                   <th>Giá KM</th>
@@ -47,7 +47,7 @@
                     </div>
                   </td>
                   <td>{{ product.categoryDTO.name }}</td>
-                  <td>
+                  <td class="max-w-[400px]">
                     <div class="line-clamp-4">{{ product.summary || '_' }}</div>
                   </td>
                   <td>{{ formatPrice(product.price) }}</td>

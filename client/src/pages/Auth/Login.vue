@@ -130,6 +130,7 @@ import { useRouter } from 'vue-router'
 import { useHomeStore, useUserStore } from '@/stores'
 import { loginUser } from '@/webServices/authorizationService'
 import { getUserProfile } from '@/webServices/userService'
+import { getCart } from '@/webServices/cartService'
 import { BASE_API_URL } from '@/configs/baseUrl'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
@@ -212,9 +213,10 @@ export default defineComponent({
       if (res.success) {
         userStore.login(res.token, res.refreshToken)
 
-        const userPromise = Promise.all([getUserProfile()]).then(([profile]) => ({
+        const userPromise = Promise.all([getUserProfile(), getCart()]).then(([profile, cart]) => ({
           success: true,
-          user: profile.userDTO
+          user: profile.userDTO,
+          cart: cart?.dto?.cartItemDTOS || []
         }))
 
         const [userData] = await Promise.all([userPromise])
@@ -223,6 +225,7 @@ export default defineComponent({
 
         if (userData.success) {
           userStore.setUser(userData.user)
+          userStore.setCart(userData.cart)
           router.push({ name: 'home' })
         }
       }

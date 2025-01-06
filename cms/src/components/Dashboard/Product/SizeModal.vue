@@ -326,8 +326,11 @@ export default defineComponent({
           message: 'Thêm size thành công',
           timeout: 3000
         })
+        clearSize()
         props.fetchData(props.variantId)
       }
+
+      isSubmitting.value = false
     }
 
     const edit = async () => {

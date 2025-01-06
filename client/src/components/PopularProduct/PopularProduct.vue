@@ -6,7 +6,9 @@
         <ButtonV5 :content="'Xem thêm'" :func="redirect" />
       </div>
       <div class="mt-2 grid grid-cols-12 gap-7">
-        <ProductCardV1 v-for="i in 8" :key="i" class="col-span-3" />
+        <div v-for="(product, i) in homeStore.popularProducts" :key="i" class="col-span-3">
+          <ProductCardV1 class="h-full" :product="product" />
+        </div>
       </div>
     </div>
   </section>
@@ -15,19 +17,21 @@
 <script>
 import { defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
+import { useHomeStore } from '@/stores'
 
 import ProductCardV1 from '@/components/Card/ProductCard/ProductCardV1.vue'
 import ButtonV5 from '@/components/Button/ButtonV5.vue'
 export default defineComponent({
   components: { ProductCardV1, ButtonV5 },
   setup() {
+    const homeStore = useHomeStore()
     const router = useRouter()
 
     const redirect = () => {
       router.push({ name: 'products' })
     }
 
-    return { redirect }
+    return { homeStore, redirect }
   }
 })
 </script>

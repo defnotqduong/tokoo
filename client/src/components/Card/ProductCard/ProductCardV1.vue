@@ -21,8 +21,10 @@
         <span class="text-primaryColor font-bold transition-all duration-300 hover:text-secondaryColor">{{ product?.storeName }}</span>
       </div>
       <div class="mt-2 flex items-center">
-        <span class="text-primaryColor font-bold">{{ formatPrice(product?.price) }}</span>
-        <span v-if="product?.discount > 0" class="ml-2 text-sm text-bodyColor font-bold opacity-75 line-through">{{ formatPrice(product?.specialPrice) }}</span>
+        <div>
+          <div class="text-primaryColor font-bold">{{ formatPrice(product?.specialPrice) }}</div>
+          <div v-if="product?.discount > 0" class="text-sm text-bodyColor font-bold opacity-75 line-through">{{ formatPrice(product?.price) }}</div>
+        </div>
         <ButtonV2 class="ml-auto" :func="addToCart" />
       </div>
     </div>

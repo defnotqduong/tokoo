@@ -157,6 +157,7 @@ import { useRouter } from 'vue-router'
 import { useHomeStore, useUserStore, useToastStore } from '@/stores'
 import { registerUser } from '@/webServices/authorizationService'
 import { getUserProfile } from '@/webServices/userService'
+import { getCart } from '@/webServices/cartService'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 export default defineComponent({

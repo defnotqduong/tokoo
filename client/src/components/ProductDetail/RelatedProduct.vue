@@ -1,7 +1,7 @@
 <template>
   <div class="mt-10">
     <h4
-      class="relative pb-3 text-headingColor text-2xl font-bold border-b border-borderColor after:absolute after:content after:bottom-0 after:left-0 after:h-[1.5px] after:w-24 after:bg-mintGreenColor"
+      class="relative pb-3 text-headingColor text-2xl font-bold border-b border-borderColor after:absolute after:content after:bottom-0 after:left-0 after:h-[2px] after:w-32 after:bg-mintGreenColor"
     >
       Sản phẩm liên quan
     </h4>

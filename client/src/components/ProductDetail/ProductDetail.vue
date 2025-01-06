@@ -13,9 +13,9 @@
         </li>
       </ul>
     </div>
-    <Description :description="product?.description" v-if="nav[0].isActive" />
-    <Shop :store="product?.storeName" v-if="nav[1].isActive" />
-    <Review :reviews="reviews" v-if="nav[2].isActive" />
+    <Description :description="product?.description" v-if="isActive(1)" />
+    <!-- <Shop :store="product?.storeName" v-if="isActive(2)" /> -->
+    <Review :reviews="reviews" v-if="isActive(3)" />
   </div>
 </template>
 
@@ -35,11 +35,11 @@ export default defineComponent({
         label: 'Mô tả',
         isActive: true
       },
-      {
-        id: 2,
-        label: 'Shop',
-        isActive: false
-      },
+      // {
+      //   id: 2,
+      //   label: 'Shop',
+      //   isActive: false
+      // },
       {
         id: 3,
         label: 'Đánh giá',
@@ -53,9 +53,14 @@ export default defineComponent({
       })
     }
 
+    const isActive = id => {
+      return nav.find(item => item.id === id)?.isActive || false
+    }
+
     return {
       nav,
-      setActive
+      setActive,
+      isActive
     }
   }
 })

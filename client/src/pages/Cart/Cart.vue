@@ -36,16 +36,37 @@
               <td><input type="checkbox" class="ui-checkbox" /></td>
               <td>
                 <div class="flex items-center justify-start">
-                  <img src="@/assets/images/product-1.jpg" class="w-28 object-cover object-center rounded-lg" alt="product image" />
-                  <span class="text-headingColor font-semibold line-clamp-1">Cánh gà Buffalo giòn truyền thống Foster Farms</span>
+                  <img :src="product?.urlImage" class="w-28 object-cover object-center rounded-lg" alt="product image" />
+                  <span class="text-headingColor font-semibold line-clamp-1">{{ product?.productDTO?.productName }}</span>
                 </div>
               </td>
-              <td class="text-center">{{ formatPrice(128000) }}</td>
-              <td class="text-center">{{ 4 }}</td>
-              <td class="text-center">{{ formatPrice(128000 * 4) }}</td>
+              <td class="text-center">{{ formatPrice(product?.productPrice) }}</td>
+              <td class="text-center">
+                <div class="inline-flex items-center border border-borderColor rounded-md">
+                  <button
+                    @click.prevent="product?.quantity > 1 ? update(product?.id, product?.quantity - 1, product?.sizeId) : deleted(product?.id)"
+                    :class="['p-2 text-headingColor']"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32">
+                      <g>
+                        <g id="minus">
+                          <rect y="12" fill="currentColor" width="28" height="5" />
+                        </g>
+                      </g>
+                    </svg>
+                  </button>
+                  <input type="text" value="1" v-model="product.quantity" readonly class="w-12 text-center border-none outline-none" />
+                  <button @click.prevent="update(product?.id, product?.quantity + 1, product?.sizeId)" class="p-2 text-headingColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="20" height="20" viewBox="0 0 1920 1920">
+                      <path d="M866.332 213v653.332H213v186.666h653.332v653.332h186.666v-653.332h653.332V866.332h-653.332V213z" fill-rule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+              <td class="text-center">{{ formatPrice(product?.productPrice * product?.quantity) }}</td>
               <td class="text-center">
                 <button
-                  @click="removeProduct(product.id)"
+                  @click.prevent="deleted(product?.id)"
                   class="px-3 py-2 rounded-md bg-dangerColor text-whiteColor transition-all duration-300 hover:bg-darkDangerColor"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="-3 0 32 32">
@@ -69,7 +90,7 @@
             </div>
             <div class="flex items-center justify-start gap-6">
               <div>
-                Tổng thanh toán (0 Sản phẩm): <span class="text-lg text-primaryColor font-bold">{{ formatPrice(128000) }}</span>
+                Tổng thanh toán (0 Sản phẩm): <span class="text-lg text-primaryColor font-bold">{{ formatPrice(0) }}</span>
               </div>
               <PrimaryButton :content="'Thanh toán'" :func="checkout" />
             </div>
@@ -82,8 +103,9 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
-import { useHomeStore, useUserStore } from '@/stores'
+import { useHomeStore, useUserStore, useToastStore } from '@/stores'
 import { useRouter } from 'vue-router'
+import { addToCart, getCart, updateItemFromCart, deleteItemFromCart } from '@/webServices/cartService'
 import { formatPrice } from '@/utils'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
@@ -94,6 +116,7 @@ export default defineComponent({
     const router = useRouter()
     const homeStore = useHomeStore()
     const userStore = useUserStore()
+    const toastStore = useToastStore()
 
     const redirect = () => {
       router.push({ name: 'products' })
@@ -103,11 +126,41 @@ export default defineComponent({
       router.push({ name: 'checkout' })
     }
 
+    const update = async (cartItemId, quantity, sizeId) => {
+      const res = await updateItemFromCart({
+        cartItemId: cartItemId,
+        quantity: quantity,
+        sizeId: sizeId
+      })
+
+      if (res.success) {
+        const cartData = await getCart()
+        userStore.setCart(cartData.dto.cartItemDTOS)
+      }
+    }
+
+    const deleted = async cartItemId => {
+      const res = await deleteItemFromCart(cartItemId)
+
+      if (res.success) {
+        toastStore.showToastModal({
+          type: 'success',
+          message: 'Sản phẩm đã được xóa khỏi giỏ hàng',
+          timeout: 3000
+        })
+
+        const cartData = await getCart()
+        userStore.setCart(cartData.dto.cartItemDTOS)
+      }
+    }
+
     return {
       userStore,
       formatPrice,
       redirect,
-      checkout
+      checkout,
+      update,
+      deleted
     }
   },
   methods: {

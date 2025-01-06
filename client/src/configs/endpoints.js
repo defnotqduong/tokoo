@@ -91,6 +91,18 @@ export default {
     method: 'get',
     url: '/cart/user'
   },
+  ADD_TO_CART_API: {
+    method: 'post',
+    url: '/cart/user/add'
+  },
+  UPDATE_ITEM_FROM_CART_API: {
+    method: 'put',
+    url: '/cart/user'
+  },
+  DELETE_ITEM_FROM_CART_API: {
+    method: 'deleted',
+    url: '/cart/user'
+  },
   // Product
   FIND_PRODUCT_API: {
     method: 'get',

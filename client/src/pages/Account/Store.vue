@@ -159,12 +159,13 @@ export default defineComponent({
 
       if (res.success) {
         toastStore.showToastModal({
-          type: 'error',
+          type: 'success',
           message: 'Đăng kí bán hàng thành công',
           timeout: 3000
         })
 
         clearRequestForm()
+        await fetchData()
       }
 
       isSubmitting.value = false

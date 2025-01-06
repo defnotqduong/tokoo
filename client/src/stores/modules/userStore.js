@@ -5,40 +5,8 @@ import { removeUserStore, removeRefreshUserStore, localEnUserStore, localEnRefre
 export const useUserStore = defineStore(USER_STORE, {
   state: () => ({
     user: null,
-    cart: [
-      {
-        id: 1
-      },
-      {
-        id: 2
-      },
-      {
-        id: 3
-      },
-      {
-        id: 4
-      },
-      {
-        id: 5
-      },
-      {
-        id: 6
-      }
-    ],
-    wishlist: [
-      {
-        id: 1
-      },
-      {
-        id: 2
-      },
-      {
-        id: 3
-      },
-      {
-        id: 4
-      }
-    ]
+    cart: [],
+    wishlist: []
   }),
   actions: {
     login(accToken, refToken) {
@@ -52,6 +20,9 @@ export const useUserStore = defineStore(USER_STORE, {
     },
     setUser(user) {
       this.user = user
+    },
+    setCart(items) {
+      this.cart = items
     }
   }
 })
