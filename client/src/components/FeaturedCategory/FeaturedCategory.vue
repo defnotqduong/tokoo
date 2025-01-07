@@ -3,13 +3,6 @@
     <div class="container mx-auto px-4">
       <div class="pb-4 flex items-center justify-start gap-2">
         <h3 class="text-primaryColor text-3xl font-extrabold leading-none">Danh mục nổi bật</h3>
-        <ul class="filter-list">
-          <li class="filter-item active">Tất cả</li>
-          <li class="filter-item">Cà phê & Trà</li>
-          <li class="filter-item">Điện tử</li>
-          <li class="filter-item">Thời trang</li>
-          <li class="filter-item">Sản phẩm hữu cơ</li>
-        </ul>
       </div>
       <div class="mt-2">
         <Swiper
@@ -31,7 +24,8 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
+import { useHomeStore } from '@/stores'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Autoplay } from 'swiper/modules'
 import 'swiper/css'
@@ -41,58 +35,26 @@ import CategoryCard from '@/components/Card/CategoryCard/CategoryCard.vue'
 export default defineComponent({
   components: { Swiper, SwiperSlide, CategoryCard },
   setup() {
-    const categories = [
-      {
-        color: 'bg-greenOpacityColor',
-        name: 'Sản phẩm hữu cơ',
-        quantity: 150
-      },
-      {
-        color: 'bg-peachCreamColor',
-        name: 'Sản phẩm giảm giá',
-        quantity: 75
-      },
-      {
-        color: 'bg-blushApricotColor',
-        name: 'Bán chạy nhất',
-        quantity: 200
-      },
-      {
-        color: 'bg-softPinkColor',
-        name: 'Điện tử',
-        quantity: 50
-      },
-      {
-        color: 'bg-peachCreamColor',
-        name: 'Sản phẩm mới',
-        quantity: 100
-      },
-      {
-        color: 'bg-frostedGreenColor',
-        name: 'Thời trang',
-        quantity: 120
-      },
-      {
-        color: 'bg-paleLemonColor',
-        name: 'Nhà & Vườn',
-        quantity: 80
-      },
-      {
-        color: 'bg-greenOpacityColor',
-        name: 'Sản phẩm hữu cơ',
-        quantity: 150
-      },
-      {
-        color: 'bg-blushApricotColor',
-        name: 'Sản phẩm giảm giá',
-        quantity: 75
-      },
-      {
-        color: 'bg-peachCreamColor',
-        name: 'Sản phẩm mới',
-        quantity: 100
-      }
+    const homeStore = useHomeStore()
+
+    const colors = [
+      'bg-greenOpacityColor',
+      'bg-peachCreamColor',
+      'bg-blushApricotColor',
+      'bg-softPinkColor',
+      'bg-frostedGreenColor',
+      'bg-paleLemonColor',
+      'bg-greenOpacityColor',
+      'bg-secondaryOpacityColor'
     ]
+
+    const categories = computed(() => {
+      const originalCategories = homeStore.hightLightCategories.map((item, index) => ({
+        ...item,
+        color: colors[index % colors.length]
+      }))
+      return [...originalCategories, ...originalCategories]
+    })
 
     return { categories, modules: [Navigation, Autoplay] }
   }

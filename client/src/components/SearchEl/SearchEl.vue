@@ -16,11 +16,15 @@
       <div class="pt-7 pb-14">
         <div class="mb-4 flex items-center justify-start">
           <h5 class="text-sm font-bold text-headingColor uppercase tracking-wide">SẢN PHẨM HÀNG ĐẦU</h5>
-          <span class="ml-1 text-sm text-bodyColor">(4 kết quả)</span>
+          <span class="ml-1 text-sm text-bodyColor">({{ products.length }} kết quả)</span>
 
           <button class="ml-auto">
             <router-link
-              :to="{ name: 'home' }"
+              :to="{
+                name: 'products',
+                query: keyword ? { keyword: keyword } : {}
+              }"
+              @click="onChangeSearchEl"
               class="flex items-center justify-center gap-1 text-sm text-bodyColor cursor-pointer relative transition-all duration-[400ms] after:absolute after:content after:bottom-0 after:left-auto after:right-0 after:w-0 after:h-[1.5px] after:rounded after:bg-primaryColor hover:text-primaryColor hover:after:w-full hover:after:right-auto hover:after:left-0 after:transition-width after:duration-[400ms]"
               >Xem thêm
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="w-4 h-4">
@@ -43,8 +47,8 @@
           <template v-else>
             <!-- <div v-if="products.length === 0" class="ml-6 italic">Không tìm thấy sản phẩm...</div> -->
             <div class="mx-6 sm:mx-0 grid grid-cols-12 gap-2">
-              <div class="col-span-12 sm:col-span-6 lg:col-span-4" v-for="i in 4" :key="i" @click="onChangeSearchEl">
-                <ProductCardV1 />
+              <div class="col-span-12 sm:col-span-6 lg:col-span-4" v-for="(product, i) in products" :key="i" @click="onChangeSearchEl">
+                <ProductCardV1 :product="product" class="h-full" />
               </div>
             </div>
           </template>
@@ -55,8 +59,9 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useHomeStore } from '@/stores'
+import { findProducts } from '@/webServices/productService'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import ProductCardV1 from '@/components/Card/ProductCard/ProductCardV1.vue'
@@ -72,9 +77,32 @@ export default defineComponent({
     const keyword = ref('')
     const loading = ref(false)
 
-    const search = async () => {}
+    const products = ref([])
 
-    return { keyword, loading, search }
+    const search = async () => {
+      loading.value = true
+      if (!keyword.value) {
+        products.value = homeStore.popularProducts
+        loading.value = false
+        return
+      }
+
+      const res = await findProducts({
+        keyword: keyword.value
+      })
+
+      if (res.success) {
+        products.value = res.dtoList
+      }
+
+      loading.value = false
+    }
+
+    onMounted(() => {
+      products.value = homeStore.popularProducts
+    })
+
+    return { keyword, loading, homeStore, products, search }
   }
 })
 </script>

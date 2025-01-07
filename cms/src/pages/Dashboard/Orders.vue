@@ -9,56 +9,57 @@
     <template v-else>
       <p class="px-4 pt-4 pb-10 italic" v-if="orders.length === 0">Chưa có đơn hàng nào</p>
       <div v-else class="pb-4">
-        <table class="table">
+        <table class="table w-full">
           <thead>
             <tr>
-              <th class="text-center">ID</th>
+              <th class="text-center">STT</th>
               <th>Ngày tạo</th>
               <th>Khách hàng</th>
+              <td>Số điện thoại</td>
+              <td>Địa chỉ</td>
               <th>Tổng tiền</th>
-              <th>Trạng thái thanh toán</th>
-              <th>Số lượng sản phẩm</th>
               <th>Trạng thái đơn hàng</th>
               <th class="text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(order, index) in orders" :key="index">
-              <td class="text-center">{{ order.orderId }}</td>
+              <td class="text-center">{{ index + 1 }}</td>
               <td>
-                {{ formatDateLong(order.createdAt) }}
+                {{ formatDateTimeLong(order.createdDate) }}
               </td>
-              <td>{{ order.customer }}</td>
-              <td>{{ formatPrice(order.totalAmount) }}</td>
+              <td>{{ order?.shipment?.name }}</td>
+              <td>{{ order?.shipment?.phoneNumber }}</td>
+              <td>{{ order?.shipment?.address }}</td>
+              <td>{{ formatPrice(order?.totalAmount) }}</td>
               <td>
                 <span
-                  :class="[
-                    'px-2 py-1 rounded-md text-sm font-bold',
-                    order.paymentStatus === 'Đã thanh toán' ? 'bg-primaryColor text-whiteColor' : 'bg-borderColor text-headingColor'
-                  ]"
+                  class="px-4 py-1 rounded-md"
+                  :class="{
+                    'text-primaryColor bg-primaryOpacityColor': order?.status === 'PAID',
+                    'bg-borderColor text-headingColor': order?.status === 'PENDING' && order?.paymentDTO?.paymentMethod === 'CASH',
+                    'text-dangerColor bg-dangerOpacityColor': order?.status === 'CANCELLED',
+                    'text-secondaryColor bg-secondaryOpacityColor': order?.status === 'PENDING' && order?.paymentDTO?.paymentMethod !== 'CASH'
+                  }"
                 >
-                  {{ order.paymentStatus }}
+                  {{
+                    order?.status === 'CANCELLED'
+                      ? 'Đơn hàng đã bị hủy'
+                      : order?.status === 'PAID'
+                      ? 'Đã thanh toán'
+                      : order?.status === 'PENDING'
+                      ? 'Chưa thanh toán'
+                      : order?.status === 'PENDING'
+                      ? 'Chưa thanh toán'
+                      : ''
+                  }}
                 </span>
               </td>
-              <td>{{ order.items.length }}</td>
-              <td>
-                <span
-                  :class="[
-                    'px-2 py-1 rounded-md text-sm font-bold',
-                    order.orderStatus === 'Đang giao hàng'
-                      ? 'bg-white border border-secondaryColor text-secondaryColor'
-                      : order.orderStatus === 'Đã hoàn thành'
-                      ? 'bg-white border border-primaryColor text-primaryColor'
-                      : 'bg-white border border-borderColor text-bodyColor'
-                  ]"
-                >
-                  {{ order.orderStatus }}</span
-                >
-              </td>
+
               <td>
                 <div class="flex items-center justify-center gap-2">
                   <button
-                    @click="redirectToOrderDetailsPage(order.orderId)"
+                    @click="redirectToOrderDetailsPage(order.id)"
                     class="px-3 py-2 rounded-md bg-secondaryOpacityColor text-secondaryColor transition-all duration-300 hover:bg-secondaryColor hover:text-whiteColor"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -70,42 +71,22 @@
                       />
                     </svg>
                   </button>
-                  <button
-                    @click="redirectToOrderDetailsPage(order.orderId)"
-                    class="px-3 py-2 rounded-md bg-primaryOpacityColor text-primaryColor transition-all duration-300 hover:bg-primaryColor hover:text-whiteColor"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256" width="16" height="16">
-                      <path
-                        d="M229.65137,58.34326l-32-32a8.00034,8.00034,0,0,0-11.31446,0l-96,96A8.00035,8.00035,0,0,0,87.99414,128v32a8.00039,8.00039,0,0,0,8,8h32a8.00076,8.00076,0,0,0,5.65723-2.34326l96-96A8,8,0,0,0,229.65137,58.34326Zm-29.657,18.34326L179.30811,56l12.686-12.68652L212.68066,64ZM223.99414,120v88a16.01833,16.01833,0,0,1-16,16h-160a16.01833,16.01833,0,0,1-16-16V48a16.01833,16.01833,0,0,1,16-16h88a8,8,0,0,1,0,16h-88V208h160V120a8,8,0,0,1,16,0Z"
-                      />
-                    </svg>
-                  </button>
-                  <button class="px-3 py-2 rounded-md bg-dangerColor text-whiteColor transition-all duration-300 hover:bg-darkDangerColor">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="-3 0 32 32">
-                      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                        <g transform="translate(-261.000000, -205.000000)" fill="currentColor">
-                          <path
-                            d="M268,220 C268,219.448 268.448,219 269,219 C269.552,219 270,219.448 270,220 L270,232 C270,232.553 269.552,233 269,233 C268.448,233 268,232.553 268,232 L268,220 L268,220 Z M273,220 C273,219.448 273.448,219 274,219 C274.552,219 275,219.448 275,220 L275,232 C275,232.553 274.552,233 274,233 C273.448,233 273,232.553 273,232 L273,220 L273,220 Z M278,220 C278,219.448 278.448,219 279,219 C279.552,219 280,219.448 280,220 L280,232 C280,232.553 279.552,233 279,233 C278.448,233 278,232.553 278,232 L278,220 L278,220 Z M263,233 C263,235.209 264.791,237 267,237 L281,237 C283.209,237 285,235.209 285,233 L285,217 L263,217 L263,233 L263,233 Z M277,209 L271,209 L271,208 C271,207.447 271.448,207 272,207 L276,207 C276.552,207 277,207.447 277,208 L277,209 L277,209 Z M285,209 L279,209 L279,207 C279,205.896 278.104,205 277,205 L271,205 C269.896,205 269,205.896 269,207 L269,209 L263,209 C261.896,209 261,209.896 261,211 L261,213 C261,214.104 261.895,214.999 262.999,215 L285.002,215 C286.105,214.999 287,214.104 287,213 L287,211 C287,209.896 286.104,209 285,209 L285,209 Z"
-                          ></path>
-                        </g>
-                      </g>
-                    </svg>
-                  </button>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
-        <Pagination class="mt-4 px-4" :meta="meta" />
+        <Pagination class="mt-4 px-4" :meta="meta" :changePage="changePage" />
       </div>
     </template>
   </div>
 </template>
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore, useToastStore } from '@/stores'
-import { formatPrice, formatDateLong } from '@/utils'
+import { formatPrice, formatDateLong, formatDateTimeLong } from '@/utils'
+import { getAllOrderByStore } from '@/webServices/orderService'
 
 import Pagination from '@/components/Pagination/Pagination.vue'
 export default defineComponent({
@@ -117,129 +98,54 @@ export default defineComponent({
 
     const loading = ref(false)
 
-    // const orders = ref([])
+    const options = ref({
+      pageNumber: 0,
+      pageSize: 8,
+      sortOrder: 'asc'
+    })
 
-    // const meta = ref({
-    //   first: null,
-    //   last: null,
-    //   number: null,
-    //   numberOfElements: null,
-    //   size: null,
-    //   totalElements: null,
-    //   totalPages: null
-    // })
-
-    const orders = ref([
-      {
-        orderId: 1,
-        createdAt: '2024-12-20 08:45:00',
-        customer: 'Nguyễn Văn A',
-        totalAmount: 2500000,
-        paymentStatus: 'Đã thanh toán',
-        items: [
-          { name: 'Laptop Dell XPS 15', quantity: 1, price: 1500000 },
-          { name: 'Sony WH-1000XM5', quantity: 1, price: 1000000 }
-        ],
-        orderStatus: 'Đang giao hàng'
-      },
-      {
-        orderId: 2,
-        createdAt: '2024-12-19 14:30:00',
-        customer: 'Trần Thị B',
-        totalAmount: 1200000,
-        paymentStatus: 'Chưa thanh toán',
-        items: [{ name: 'iPhone 14 Pro Max', quantity: 1, price: 1200000 }],
-        orderStatus: 'Chờ xử lý'
-      },
-      {
-        orderId: 3,
-        createdAt: '2024-12-18 09:15:00',
-        customer: 'Phạm Văn C',
-        totalAmount: 400000,
-        paymentStatus: 'Đã thanh toán',
-        items: [{ name: 'Tai nghe Sony WH-1000XM5', quantity: 1, price: 400000 }],
-        orderStatus: 'Đã hoàn thành'
-      },
-      {
-        orderId: 4,
-        createdAt: '2024-12-17 11:45:00',
-        customer: 'Lê Thị D',
-        totalAmount: 750000,
-        paymentStatus: 'Đã thanh toán',
-        items: [{ name: 'Bàn phím cơ Keychron K6', quantity: 1, price: 750000 }],
-        orderStatus: 'Đang giao hàng'
-      },
-      {
-        orderId: 5,
-        createdAt: '2024-12-16 16:00:00',
-        customer: 'Hoàng Minh E',
-        totalAmount: 150000,
-        paymentStatus: 'Chưa thanh toán',
-        items: [{ name: "Sách 'Clean Code'", quantity: 1, price: 150000 }],
-        orderStatus: 'Chờ xử lý'
-      },
-      {
-        orderId: 6,
-        createdAt: '2024-12-15 10:20:00',
-        customer: 'Đặng Quốc F',
-        totalAmount: 600000,
-        paymentStatus: 'Đã thanh toán',
-        items: [{ name: 'Chuột Logitech MX Master 3', quantity: 1, price: 600000 }],
-        orderStatus: 'Đã hoàn thành'
-      },
-      {
-        orderId: 7,
-        createdAt: '2024-12-14 13:30:00',
-        customer: 'Ngô Hải G',
-        totalAmount: 1100000,
-        paymentStatus: 'Đã thanh toán',
-        items: [{ name: "Monitor LG 24'' Full HD", quantity: 1, price: 1100000 }],
-        orderStatus: 'Đang giao hàng'
-      },
-      {
-        orderId: 8,
-        createdAt: '2024-12-13 15:45:00',
-        customer: 'Vũ Thanh H',
-        totalAmount: 900000,
-        paymentStatus: 'Chưa thanh toán',
-        items: [{ name: 'Smartwatch Garmin Vivoactive 4', quantity: 1, price: 900000 }],
-        orderStatus: 'Chờ xử lý'
-      },
-      {
-        orderId: 9,
-        createdAt: '2024-12-12 18:00:00',
-        customer: 'Đỗ Minh I',
-        totalAmount: 450000,
-        paymentStatus: 'Đã thanh toán',
-        items: [{ name: 'Loa Bluetooth JBL Flip 6', quantity: 1, price: 450000 }],
-        orderStatus: 'Đã hoàn thành'
-      },
-      {
-        orderId: 10,
-        createdAt: '2024-12-11 09:10:00',
-        customer: 'Trần Quốc J',
-        totalAmount: 3000000,
-        paymentStatus: 'Chưa thanh toán',
-        items: [{ name: "Laptop MacBook Pro 13''", quantity: 1, price: 3000000 }],
-        orderStatus: 'Chờ xử lý'
-      }
-    ])
+    const orders = ref([])
 
     const meta = ref({
-      first: true,
-      last: false,
-      number: 1,
-      numberOfElements: 10,
-      size: 10,
-      totalElements: 30,
-      totalPages: 3
+      first: null,
+      last: null,
+      number: null,
+      numberOfElements: null,
+      size: null,
+      totalElements: null,
+      totalPages: null
     })
+
+    const changePage = page => {
+      options.value.pageNumber = page
+    }
+
+    const updateSortOrder = order => {
+      options.value.sortOrder = order
+    }
 
     const redirectToOrderDetailsPage = id => {
       router.push({ name: 'order-details', params: { id: id } })
     }
 
-    const fetchData = async () => {}
+    const fetchData = async () => {
+      const res = await getAllOrderByStore()
+
+      console.log(res)
+
+      if (res.success) {
+        orders.value = res.dtoList
+        meta.value = res.pageDto
+      }
+    }
+
+    watch(
+      options,
+      async newOptions => {
+        await fetchData()
+      },
+      { deep: true }
+    )
 
     onMounted(async () => {
       loading.value = true
@@ -247,13 +153,7 @@ export default defineComponent({
       loading.value = false
     })
 
-    return {
-      orders,
-      meta,
-      formatPrice,
-      formatDateLong,
-      redirectToOrderDetailsPage
-    }
+    return { options, loading, orders, meta, formatPrice, formatDateLong, formatDateTimeLong, changePage, updateSortOrder, redirectToOrderDetailsPage }
   },
   methods: {
     scrollToTop() {
@@ -287,8 +187,23 @@ export default defineComponent({
   @apply border-b border-borderColor;
 }
 
-.payment-container {
-  @apply sticky bottom-0 px-4 py-8 bg-whiteColor rounded-md border border-borderColor shadow-shadow06;
+.select,
+.filter-input {
+  min-height: 40px;
+  height: 40px;
+  font-size: 16px;
+  padding: 0 16px;
+  border: 1px solid rgba(204, 204, 204, 1);
+  @apply text-headingColor bg-whiteColor rounded-md;
+}
+
+.filter-input {
+  @apply w-32;
+}
+
+.select:focus,
+.filter-input:focus {
+  @apply border-primaryColor outline-none;
 }
 
 .ui-checkbox {

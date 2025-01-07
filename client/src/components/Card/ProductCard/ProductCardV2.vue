@@ -1,28 +1,35 @@
 <template>
   <div class="product-card">
     <div class="product-image">
-      <router-link :to="{ name: 'product-detail', params: { slug: 'slug' } }">
-        <img src="@/assets/images/product-1.jpg" alt="product image" />
+      <router-link :to="{ name: 'product-detail', params: { slug: `${generateSlug(product?.productName || '')}-${product?.productId}` } }">
+        <img :src="product?.thumbnail" alt="product image" class="w-52 h-52 object-cover object-center" />
       </router-link>
     </div>
     <div>
-      <span class="text-sm text-bodyColor">Rau củ</span>
-      <router-link :to="{ name: 'product-detail', params: { slug: 'slug' } }">
+      <span class="text-sm text-bodyColor">{{ product?.categoryDTO?.name }}</span>
+      <router-link :to="{ name: 'product-detail', params: { slug: `${generateSlug(product?.productName || '')}-${product?.productId}` } }">
         <h5 class="mt-1 mb-2 text-headingColor font-bold leading-tight line-clamp-2 hover:text-primaryColor transition-all duration-300">
-          Cánh gà Buffalo giòn truyền thống Foster Farms
+          {{ product?.productName }}
         </h5>
       </router-link>
       <div class="flex items-center gap-2">
-        <StarRating :star="3.5" :size="14" />
+        <StarRating :star="product?.averageRating || 5" :size="14" />
       </div>
-      <div class="mt-2 flex items-center">
-        <span class="text-primaryColor font-bold">{{ formatPrice(128000) }}</span>
-        <!-- <span class="ml-2 text-sm text-bodyColor font-bold opacity-75 line-through">{{ formatPrice(132500) }}</span> -->
-      </div>
-      <ButtonV3 class="mt-2 w-full" />
+      <span class="text-primaryColor font-bold">{{ formatPrice(product?.specialPrice) }}</span>
+      <span v-if="product?.discount > 0" class="ml-2 text-sm text-bodyColor font-bold opacity-75 line-through">{{ formatPrice(product?.price) }}</span>
+
+      <ButtonV3 class="mt-2 w-full" :func="addToCart" />
     </div>
-    <div class="absolute top-0 left-0 px-3 py-[2px] bg-pinkColor rounded-tl-xl rounded-br-xl">
-      <span class="text-xs text-whiteColor leading-none">Sale</span>
+    <div>
+      <div v-if="product?.quantity > 100" class="absolute top-0 left-0 px-3 py-[2px] bg-secondaryColor rounded-tl-xl rounded-br-xl">
+        <span class="text-xs text-whiteColor leading-none">Bán chạy</span>
+      </div>
+      <div v-else-if="product?.discount > 0" class="absolute top-0 left-0 px-3 py-[2px] bg-pinkColor rounded-tl-xl rounded-br-xl">
+        <span class="text-xs text-whiteColor leading-none">Giảm {{ product?.discount }} %</span>
+      </div>
+      <div v-else class="absolute top-0 left-0 px-3 py-[2px] bg-primaryColor rounded-tl-xl rounded-br-xl">
+        <span class="text-xs text-whiteColor leading-none">Mới</span>
+      </div>
     </div>
     <div class="product-actions">
       <div class="flex flex-col gap-1">
@@ -60,24 +67,32 @@
 <script>
 import { defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
-import { formatPrice } from '@/utils'
+import { formatPrice, generateSlug } from '@/utils'
 
 import StarRating from '@/components/StarRating/StarRating.vue'
 import ButtonV3 from '@/components/Button/ButtonV3.vue'
 
 export default defineComponent({
   components: { StarRating, ButtonV3 },
-  setup() {
-    const redirect = () => {
-      router.push({ name: 'product-detail', params: { slug: 'slug' } })
-    }
+  props: { product: Object },
 
+  setup(props) {
+    const router = useRouter()
+
+    const redirect = () => {
+      const slug = generateSlug(`${props.product?.productName || ''}-${props.product?.productId}`)
+      router.push({ name: 'product-detail', params: { slug } })
+    }
     const addToWishList = () => {}
 
-    const addToCart = () => {}
+    const addToCart = () => {
+      const slug = generateSlug(`${props.product?.productName || ''}-${props.product?.productId}`)
+      router.push({ name: 'product-detail', params: { slug } })
+    }
 
     return {
       formatPrice,
+      generateSlug,
       redirect,
       addToWishList,
       addToCart
@@ -90,6 +105,7 @@ export default defineComponent({
 .product-card {
   position: relative;
   padding: 20px;
+  height: 410px;
   border: 1px solid;
   border-radius: 12px;
   transition: all 1s cubic-bezier(0, 0, 0.05, 1);

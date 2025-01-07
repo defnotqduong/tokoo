@@ -75,23 +75,31 @@
 <script>
 import { defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore, useToastStore } from '@/stores'
 import { formatPrice, generateSlug } from '@/utils'
+import { addToCart, getCart } from '@/webServices/cartService'
 
 import StarRating from '@/components/StarRating/StarRating.vue'
 import ButtonV2 from '@/components/Button/ButtonV2.vue'
 export default defineComponent({
   components: { StarRating, ButtonV2 },
   props: { product: Object },
-  setup() {
+  setup(props) {
+    const userStore = useUserStore()
+    const toastStore = useToastStore()
     const router = useRouter()
 
     const redirect = () => {
-      router.push({ name: 'product-detail', params: { slug: 'slug' } })
+      const slug = generateSlug(`${props.product?.productName || ''}-${props.product?.productId}`)
+      router.push({ name: 'product-detail', params: { slug } })
     }
 
     const addToWishList = () => {}
 
-    const addToCart = () => {}
+    const addToCart = () => {
+      const slug = generateSlug(`${props.product?.productName || ''}-${props.product?.productId}`)
+      router.push({ name: 'product-detail', params: { slug } })
+    }
 
     return { generateSlug, formatPrice, redirect, addToWishList, addToCart }
   }

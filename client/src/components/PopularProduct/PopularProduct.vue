@@ -6,7 +6,7 @@
         <ButtonV5 :content="'Xem thêm'" :func="redirect" />
       </div>
       <div class="mt-2 grid grid-cols-12 gap-7">
-        <div v-for="(product, i) in homeStore.popularProducts" :key="i" class="col-span-3">
+        <div v-for="(product, i) in homeStore.popularProducts.slice(0, 8)" :key="i" class="col-span-3">
           <ProductCardV1 class="h-full" :product="product" />
         </div>
       </div>

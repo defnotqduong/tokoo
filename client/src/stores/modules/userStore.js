@@ -6,7 +6,8 @@ export const useUserStore = defineStore(USER_STORE, {
   state: () => ({
     user: null,
     cart: [],
-    wishlist: []
+    wishlist: [],
+    orderIds: []
   }),
   actions: {
     login(accToken, refToken) {
@@ -23,6 +24,9 @@ export const useUserStore = defineStore(USER_STORE, {
     },
     setCart(items) {
       this.cart = items
+    },
+    setOrderIds(items) {
+      this.orderIds = items
     }
   }
 })

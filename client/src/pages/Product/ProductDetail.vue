@@ -85,7 +85,7 @@ export default defineComponent({
         })
       }
 
-      while (result.length < 4) {
+      while (result.length <= 4) {
         result.push(...result)
       }
 

@@ -164,7 +164,7 @@
               </thead>
               <tbody>
                 <tr v-for="(variant, index) in variants" :key="index">
-                  <td class="text-center">{{ variant.id }}</td>
+                  <td class="text-center">{{ index + 1 }}</td>
                   <td><img :src="variant.imageUrl" class="w-20 object-cover object-center rounded-md" alt="variant thumbnail" /></td>
                   <td>
                     {{ variant.attribute }}

@@ -31,7 +31,7 @@
             </thead>
             <tbody>
               <tr v-for="(category, index) in categories" :key="index">
-                <td class="text-center">{{ index + 1 }}</td>
+                <td class="text-center">{{ (meta?.number - 1) * meta?.size + index + 1 }}</td>
                 <td>{{ category.name }}</td>
                 <td>{{ category.description || '_' }}</td>
                 <td>
@@ -189,6 +189,7 @@ export default defineComponent({
 
     const fetchData = async () => {
       const res = await getListCategory(options.value)
+      console.log(res)
       if (res.success) {
         categories.value = res.dtoList
         meta.value = res.pageDto

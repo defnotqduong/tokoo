@@ -29,21 +29,10 @@
                   </svg>
                 </a>
                 <ul class="sub-menu mega-menu grid grid-cols-12">
-                  <li v-for="i in 20" :key="i" class="col-span-6">
-                    <a class="line-clamp-1"> Danh mục {{ i }} </a>
-                  </li>
-                </ul>
-              </li>
-              <li class="has-child-menu">
-                <a class="flex items-center justify-center gap-1">
-                  <span>Sản phẩm</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </a>
-                <ul class="sub-menu grid grid-cols-12">
-                  <li v-for="i in 20" :key="i" class="col-span-6">
-                    <a class="line-clamp-1">Sản phẩm {{ i }}</a>
+                  <li v-for="(cat, i) in homeStore.hightLightCategories" :key="i" class="col-span-6">
+                    <router-link :to="{ name: 'products', query: { categoryId: cat.id } }" class="line-clamp-1">
+                      {{ cat?.name }}
+                    </router-link>
                   </li>
                 </ul>
               </li>

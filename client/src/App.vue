@@ -14,7 +14,8 @@ import { useUserStore, useHomeStore, useToastStore } from '@/stores'
 import { gtka } from '@/helpers/localStorageHelper'
 import { getUserProfile } from '@/webServices/userService'
 import { getCart } from '@/webServices/cartService'
-import { getPopularProduct } from '@/webServices/productService'
+import { getPopularProduct, getLatestProduct } from '@/webServices/productService'
+import { getAllCategory, getHighLightCategory } from '@/webServices/categoryService'
 
 import PrimeVueToast from '@/components/Toast/PrimeVueToast.vue'
 import GlobalLoading from '@/components/Loading/GlobalLoading.vue'
@@ -48,7 +49,12 @@ export default defineComponent({
           }))
         : Promise.resolve(null)
 
-      const [userData, popularData] = await Promise.all([userPromise, getPopularProduct({ options: { sortBy: 'quantity', pageSize: 8 } })])
+      const [userData, popularData, hightLightCatData, latestProductData] = await Promise.all([
+        userPromise,
+        getPopularProduct({ sortBy: 'quantity', pageSize: 20 }),
+        getHighLightCategory(),
+        getLatestProduct({ sortOrder: 'desc', pageSize: 8 })
+      ])
 
       console.log(userData)
 
@@ -59,6 +65,14 @@ export default defineComponent({
 
       if (popularData?.success) {
         this.homeStore.setPopularProducts(popularData?.dtoList)
+      }
+
+      if (hightLightCatData?.success) {
+        this.homeStore.setHighLightCategories(hightLightCatData?.dtoList)
+      }
+
+      if (latestProductData.success) {
+        this.homeStore.setLatestProducts(latestProductData?.dtoList)
       }
 
       this.loading = false

@@ -55,6 +55,15 @@ export default {
     url: '/store/info'
   },
 
+  GET_ALL_REQUEST_BY_ADMIN_API: {
+    method: 'get',
+    url: '/admin/request/details'
+  },
+  CONFIRM_REQUEST_BY_ADMIN_API: {
+    method: 'post',
+    url: '/admin/confirm'
+  },
+
   // Category
   GET_LIST_CATEGORY_API: {
     method: 'get',
@@ -129,5 +138,15 @@ export default {
   DELETE_SIZE_API: {
     method: 'deleted',
     url: '/store/size'
+  },
+
+  // Order
+  GET_ALL_ORDER_BY_STORE_API: {
+    method: 'get',
+    url: '/store/order/all'
+  },
+  GET_ORDER_DETAILS_BY_STORE_API: {
+    method: 'get',
+    url: '/store/order'
   }
 }

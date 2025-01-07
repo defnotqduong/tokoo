@@ -81,9 +81,14 @@ export default {
     url: '/user/store-request-state'
   },
 
+  // Category
   GET_ALL_CATEGORY_API: {
     method: 'get',
     url: '/categories/all'
+  },
+  GET_HIGHLIGHT_CATEGORY_API: {
+    method: 'get',
+    url: '/categories/highlight'
   },
 
   // Cart
@@ -120,5 +125,18 @@ export default {
   GET_LIST_SIZE_API: {
     method: 'get',
     url: '/public/size'
+  },
+  // Order
+  CREATE_ORDER_API: {
+    method: 'post',
+    url: '/order/create'
+  },
+  GET_ALL_ORDER_API: {
+    method: 'get',
+    url: '/order/all'
+  },
+  PAYMENT_VNPAY_API: {
+    method: 'post',
+    url: '/payment/create'
   }
 }

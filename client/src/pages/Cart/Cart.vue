@@ -22,7 +22,7 @@
           <thead>
             <tr>
               <th>
-                <input type="checkbox" class="ui-checkbox" />
+                <input type="checkbox" class="ui-checkbox" v-model="isCheckedAll" @change="toggleAllProductIds" />
               </th>
               <th>Sản phẩm</th>
               <th class="text-center">Đơn giá</th>
@@ -32,19 +32,22 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="product in userStore.cart" :key="product.id">
-              <td><input type="checkbox" class="ui-checkbox" /></td>
+            <tr v-for="item in userStore.cart" :key="item.id">
+              <td><input type="checkbox" class="ui-checkbox" :checked="ids.includes(item.id)" @change="toggleProductId(item.id)" /></td>
               <td>
-                <div class="flex items-center justify-start">
-                  <img :src="product?.urlImage" class="w-28 object-cover object-center rounded-lg" alt="product image" />
-                  <span class="text-headingColor font-semibold line-clamp-1">{{ product?.productDTO?.productName }}</span>
+                <div class="flex items-center justify-start gap-4">
+                  <img :src="item?.urlImage" class="w-28 object-cover object-center rounded-lg" alt="product image" />
+                  <div>
+                    <span class="text-primaryColor font-bold line-clamp-1">{{ item?.productDTO?.productName }}</span>
+                    <span class="text-bodyColor">{{ item?.variantDTO?.attribute }} {{ item?.size }}</span>
+                  </div>
                 </div>
               </td>
-              <td class="text-center">{{ formatPrice(product?.productPrice) }}</td>
+              <td class="text-center">{{ formatPrice(item?.productPrice) }}</td>
               <td class="text-center">
                 <div class="inline-flex items-center border border-borderColor rounded-md">
                   <button
-                    @click.prevent="product?.quantity > 1 ? update(product?.id, product?.quantity - 1, product?.sizeId) : deleted(product?.id)"
+                    @click.prevent="item?.quantity > 1 ? update(item?.id, item?.quantity - 1, item?.sizeId) : deleted(item?.id)"
                     :class="['p-2 text-headingColor']"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32">
@@ -55,18 +58,18 @@
                       </g>
                     </svg>
                   </button>
-                  <input type="text" value="1" v-model="product.quantity" readonly class="w-12 text-center border-none outline-none" />
-                  <button @click.prevent="update(product?.id, product?.quantity + 1, product?.sizeId)" class="p-2 text-headingColor">
+                  <input type="text" value="1" v-model="item.quantity" readonly class="w-12 text-center border-none outline-none" />
+                  <button @click.prevent="update(item?.id, item?.quantity + 1, item?.sizeId)" class="p-2 text-headingColor">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="20" height="20" viewBox="0 0 1920 1920">
                       <path d="M866.332 213v653.332H213v186.666h653.332v653.332h186.666v-653.332h653.332V866.332h-653.332V213z" fill-rule="evenodd" />
                     </svg>
                   </button>
                 </div>
               </td>
-              <td class="text-center">{{ formatPrice(product?.productPrice * product?.quantity) }}</td>
+              <td class="text-center">{{ formatPrice(item?.productPrice * item?.quantity) }}</td>
               <td class="text-center">
                 <button
-                  @click.prevent="deleted(product?.id)"
+                  @click.prevent="deleted(item?.id)"
                   class="px-3 py-2 rounded-md bg-dangerColor text-whiteColor transition-all duration-300 hover:bg-darkDangerColor"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="-3 0 32 32">
@@ -86,13 +89,14 @@
         <div class="payment-container">
           <div class="flex items-center justify-between">
             <div class="flex items-center justify-start gap-4">
-              <input type="checkbox" class="ui-checkbox" /> <span>Chọn tất cả ({{ userStore.cart.length }})</span>
+              <input type="checkbox" class="ui-checkbox" v-model="isCheckedAll" @change="toggleAllProductIds" />
+              <span>Chọn tất cả ({{ userStore.cart.length }})</span>
             </div>
             <div class="flex items-center justify-start gap-6">
               <div>
-                Tổng thanh toán (0 Sản phẩm): <span class="text-lg text-primaryColor font-bold">{{ formatPrice(0) }}</span>
+                Tổng thanh toán ({{ ids.length }} Sản phẩm): <span class="text-lg text-primaryColor font-bold">{{ formatPrice(totalAmount) }}</span>
               </div>
-              <PrimaryButton :content="'Thanh toán'" :func="checkout" />
+              <PrimaryButton :content="'Thanh toán'" :func="checkout" :loading="isSubmitting" />
             </div>
           </div>
         </div>
@@ -102,11 +106,12 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { useHomeStore, useUserStore, useToastStore } from '@/stores'
 import { useRouter } from 'vue-router'
-import { addToCart, getCart, updateItemFromCart, deleteItemFromCart } from '@/webServices/cartService'
 import { formatPrice } from '@/utils'
+import { addToCart, getCart, updateItemFromCart, deleteItemFromCart } from '@/webServices/cartService'
+import { createOrder } from '@/webServices/orderService'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 
@@ -114,16 +119,52 @@ export default defineComponent({
   components: { PrimaryButton },
   setup() {
     const router = useRouter()
+    const isSubmitting = ref(false)
+
     const homeStore = useHomeStore()
     const userStore = useUserStore()
     const toastStore = useToastStore()
+
+    const isCheckedAll = ref(false)
+    const totalAmount = ref(0)
+
+    const ids = ref([])
 
     const redirect = () => {
       router.push({ name: 'products' })
     }
 
-    const checkout = () => {
-      router.push({ name: 'checkout' })
+    const checkout = async () => {
+      userStore.setOrderIds(ids.value)
+      if (ids.value.length > 0) router.push({ name: 'checkout' })
+    }
+
+    const toggleProductId = productId => {
+      const index = ids.value.indexOf(productId)
+      if (index === -1) {
+        ids.value.push(productId)
+      } else {
+        ids.value.splice(index, 1)
+      }
+
+      totalAmount.value = ids.value.reduce((sum, id) => {
+        const product = userStore.cart.find(item => item.id === id)
+        return product ? sum + product.productPrice * product.quantity : sum
+      }, 0)
+    }
+
+    const toggleAllProductIds = event => {
+      if (event.target.checked) {
+        const allIds = userStore.cart.map(product => product.id)
+        ids.value = Array.from(new Set([...ids.value, ...allIds]))
+      } else {
+        ids.value = []
+      }
+
+      totalAmount.value = ids.value.reduce((sum, id) => {
+        const product = userStore.cart.find(item => item.id === id)
+        return product ? sum + product.productPrice * product.quantity : sum
+      }, 0)
     }
 
     const update = async (cartItemId, quantity, sizeId) => {
@@ -135,7 +176,7 @@ export default defineComponent({
 
       if (res.success) {
         const cartData = await getCart()
-        userStore.setCart(cartData.dto.cartItemDTOS)
+        userStore.setCart(cartData.dto?.cartItemDTOS || [])
       }
     }
 
@@ -150,15 +191,21 @@ export default defineComponent({
         })
 
         const cartData = await getCart()
-        userStore.setCart(cartData.dto.cartItemDTOS)
+        userStore.setCart(cartData.dto?.cartItemDTOS || [])
       }
     }
 
     return {
+      ids,
       userStore,
       formatPrice,
+      isCheckedAll,
+      totalAmount,
+      isSubmitting,
       redirect,
       checkout,
+      toggleProductId,
+      toggleAllProductIds,
       update,
       deleted
     }

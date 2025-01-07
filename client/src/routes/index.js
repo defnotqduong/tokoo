@@ -113,14 +113,6 @@ const routes = [
             }
           },
           {
-            path: 'order-tracking',
-            name: 'account-ordertracking',
-            component: () => import('@/pages/Account/OrderTracking.vue'),
-            meta: {
-              title: 'Theo dõi đơn hàng - Tokoo'
-            }
-          },
-          {
             path: 'voucher',
             name: 'account-voucher',
             component: () => import('@/pages/Account/Voucher.vue'),

@@ -7,7 +7,7 @@
       <div class="flex items-start justify-between">
         <div>
           <span class="text-primaryColor font-semibold line-clamp-1">{{ product?.productDTO?.productName }}</span>
-          <span class="text-bodyColor">{{ product?.variantDTO?.name }} {{ product?.size }}</span>
+          <span class="text-bodyColor">{{ product?.variantDTO?.attribute }} {{ product?.size }}</span>
         </div>
         <div class="ml-2 text-headingColor font-semibold">
           {{ formatPrice(product?.productPrice) }}

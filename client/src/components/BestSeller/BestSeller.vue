@@ -26,8 +26,8 @@
             :loop="true"
             class="slider"
           >
-            <SwiperSlide v-for="i in 8" :key="i">
-              <ProductCardV2 class="mx-1" />
+            <SwiperSlide v-for="(product, i) in homeStore.latestProducts" :key="i">
+              <ProductCardV2 class="mx-1 h-full" :product="product" />
             </SwiperSlide>
           </Swiper>
         </div>
@@ -38,6 +38,8 @@
 
 <script>
 import { defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
+import { useHomeStore } from '@/stores'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Autoplay } from 'swiper/modules'
 import 'swiper/css'
@@ -48,9 +50,14 @@ import ButtonV4 from '@/components/Button/ButtonV4.vue'
 export default defineComponent({
   components: { Swiper, SwiperSlide, ProductCardV2, ButtonV4 },
   setup() {
-    const redirect = () => {}
+    const router = useRouter()
+    const homeStore = useHomeStore()
 
-    return { redirect, modules: [Navigation, Autoplay] }
+    const redirect = () => {
+      router.push({ name: 'products' })
+    }
+
+    return { redirect, homeStore, modules: [Navigation, Autoplay] }
   }
 })
 </script>

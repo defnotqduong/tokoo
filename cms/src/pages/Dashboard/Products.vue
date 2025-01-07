@@ -23,7 +23,7 @@
               <thead>
                 <tr>
                   <th class="text-center">STT</th>
-                  <th>Sản phẩm</th>
+                  <th class="max-w-80">Sản phẩm</th>
                   <th>Thể loại</th>
                   <th class="max-w-[400px]">Tổng quan</th>
                   <th>Giá gốc</th>
@@ -37,8 +37,8 @@
               </thead>
               <tbody>
                 <tr v-for="(product, index) in products" :key="index">
-                  <td class="text-center">{{ index + 1 }}</td>
-                  <td>
+                  <td class="text-center">{{ (meta?.number - 1) * meta?.size + index + 1 }}</td>
+                  <td class="max-w-80">
                     <div class="w-full flex items-center justify-start">
                       <img :src="product.thumbnail" class="w-20 object-cover object-center rounded-md" alt="product thumbnail" />
                       <div class="ml-4">

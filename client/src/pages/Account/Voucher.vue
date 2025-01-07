@@ -3,6 +3,7 @@
     <div class="mb-4 pb-4 border-b-[1px] border-borderColor flex items-center justify-between">
       <h4 class="text-xl text-headingColor font-extrabold">Voucher</h4>
     </div>
+    <p class="italic">Chưa có voucher nào</p>
   </div>
 </template>
 <script>

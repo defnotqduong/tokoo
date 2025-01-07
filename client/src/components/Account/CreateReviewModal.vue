@@ -60,10 +60,12 @@ export default defineComponent({
     closeModal: Function
   },
   setup(props) {
+    const rating = ref(0)
+    const content = ref('')
     const close = () => {
       props.closeModal()
     }
-    return { close }
+    return { rating, content, close }
   }
 })
 </script>

@@ -16,7 +16,7 @@
             placeholder="Tìm kiếm sản phẩm..."
             class="sm:min-w-[360px] h-10 px-4 text-headingColor font-semibold line-clamp-1 bg-whiteColor border border-whiteColor outline-none rounded-lg shadow-shadow02 transition-all duration-300 placeholder:text-bodyColor focus:border-primaryColor"
           />
-          <PrimaryButton :content="'Tìm kiếm'" :func="fetchData" />
+          <PrimaryButton :content="'Tìm kiếm'" :func="fetch" />
         </form>
       </div>
     </div>
@@ -32,7 +32,7 @@
           </select>
         </div>
         <div>
-          <select class="select w-full min-w-52" @change="handleCategoryChange">
+          <select class="select w-full min-w-52" @change="handleCategoryChange" v-model="options.categoryId">
             <option value="" selected>Tất cả</option>
             <option v-for="category in categories" :key="category.id" :value="category.id" class="line-clamp-1">
               {{ category.name }}
@@ -44,7 +44,7 @@
           <span>-</span>
           <input type="text" name="" id="" placeholder="Tối đa" class="filter-input" v-model="options.maxPrice" />
         </div>
-        <button @click.prevent="fetchData" class="px-3 h-10 rounded-lg bg-primaryColor text-whiteColor">
+        <button @click.prevent="fetch" class="px-3 h-10 rounded-lg bg-primaryColor text-whiteColor">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="20" height="20">
             <path
               fill-rule="evenodd"
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { formatPrice } from '@/utils'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
@@ -99,10 +99,15 @@ export default defineComponent({
       props.options.categoryId = selectedCategoryId
     }
 
+    const fetch = async () => {
+      props.fetchData()
+    }
+
     return {
       formatPrice,
       handleSortChange,
-      handleCategoryChange
+      handleCategoryChange,
+      fetch
     }
   }
 })

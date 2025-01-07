@@ -3,15 +3,44 @@
     <div class="py-4 px-4 flex items-center justify-between border-b border-borderColor">
       <h3 class="text-lg font-bold">Chi tiết đơn hàng</h3>
     </div>
-    <div class="py-4 px-4">
+    <div v-if="loading" class="min-h-[75vh] flex items-center justify-center text-primaryColor">
+      <span class="loading loading-spinner loading-md"></span>
+    </div>
+    <div v-else class="py-4 px-4">
       <div class="grid grid-cols-12 gap-8">
         <div class="col-span-9">
           <div>
             <div class="flex items-center justify-between">
               <div class="flex items-center justify-center gap-3">
-                #0758267/90
-                <span class="px-3 py-1 rounded-lg bg-primaryColor text-whiteColor">Đã thanh toán</span>
-                <span class="px-3 py-1 rounded-lg border border-secondaryColor text-secondaryColor">Đang tiến hành</span>
+                #{{ order?.id }}
+                <span class="px-3 py-1 rounded-lg bg-primaryColor text-whiteColor">
+                  {{
+                    order?.status === 'CANCELLED'
+                      ? 'Đơn hàng đã bị hủy'
+                      : order?.status === 'PAID'
+                      ? 'Đã thanh toán'
+                      : order?.status === 'PENDING' && order?.paymentDTO?.paymentMethod === 'CASH'
+                      ? 'Thanh toán khi nhận hàng'
+                      : order?.status === 'PENDING'
+                      ? 'Chưa thanh toán'
+                      : ''
+                  }}</span
+                >
+                <span class="px-3 py-1 rounded-lg border border-secondaryColor text-secondaryColor">
+                  {{
+                    shipment?.status === 'DELIVERED'
+                      ? 'Giao hàng thành công'
+                      : shipment?.status === 'OUT_FOR_DELIVERY'
+                      ? 'Đang giao hàng'
+                      : shipment?.status === 'RETURNED'
+                      ? 'Đã trả hàng'
+                      : shipment?.status === 'PENDING'
+                      ? 'Đơn hàng đang chờ xử lý'
+                      : shipment?.status === 'CANCELED'
+                      ? 'Đơn hàng đã bị hủy'
+                      : ''
+                  }}</span
+                >
               </div>
               <div class="flex items-center justify-center gap-3">
                 <button
@@ -144,10 +173,18 @@
   </div>
 </template>
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { formatDateTimeLong, formatPrice } from '@/utils'
+import { getOrderDetailByStore } from '@/webServices/orderService'
 export default defineComponent({
   setup() {
+    const route = useRoute()
+
+    const loading = ref(false)
+    const order = ref(null)
+    const shipment = ref(null)
+
     const orders = ref([
       { name: 'Áo thun nam màu đen', size: 'L', status: 'Mới', quantity: 1, price: 150000, amount: 150000 },
       { name: 'Quần baggy màu xanh lá cây', size: 'M', status: 'Mới', quantity: 3, price: 200000, amount: 200000 },
@@ -160,7 +197,22 @@ export default defineComponent({
       address: 'Quận Bắc Từ Liêm, Hà Nội',
       phoneNumber: '0373745152'
     })
-    return { formatPrice, formatDateTimeLong, orders, customer }
+
+    const fetchData = async () => {
+      const id = route.params.id
+      const res = await getOrderDetailByStore(id)
+      console.log(res)
+      order.value = res.order
+      shipment.value = res.shipment
+    }
+
+    onMounted(async () => {
+      loading.value = true
+      await fetchData()
+      loading.value = false
+    })
+
+    return { formatPrice, formatDateTimeLong, order, loading, shipment, orders, customer }
   }
 })
 </script>

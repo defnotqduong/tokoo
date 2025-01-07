@@ -5,7 +5,15 @@
         <div class="mb-6 p-8 border border-borderColor rounded-xl">
           <img :src="selectedImage" class="w-full h-[500px] object-cover object-center" alt="product image" />
         </div>
-        <Swiper v-if="urls.length > 0" :modules="modules" :slides-per-view="4" :navigation="true" :speed="800" :loop="true" class="slider">
+        <Swiper
+          v-if="urls.length > 0"
+          :modules="modules"
+          :slides-per-view="urls.length > 0 ? 4 : 0"
+          :navigation="true"
+          :speed="800"
+          :loop="true"
+          class="slider"
+        >
           <SwiperSlide v-for="(url, index) in urls" :key="index" @click="handleSlideClick(url)">
             <div class="mx-1 p-1 rounded-md border border-borderPrimaryColor cursor-pointer">
               <img :src="url" alt="Product Image" class="w-32 h-32 object-contain" />
@@ -25,10 +33,15 @@
           <span class="text-bodyColor text-sm">({{ product?.reviewNumber }} đánh giá)</span>
         </div>
         <div class="mt-5 flex items-end">
-          <span class="text-lg md:text-xl lg:text-2xl xl:text-3xl text-primaryColor font-bold">{{ formatPrice(product?.specialPrice) }}</span>
-          <span v-if="product?.discount > 0" class="ml-4 md:text-lg lg:text-xl xl:text-2xl text-bodyColor font-bold opacity-75 line-through">{{
-            formatPrice(product?.price)
-          }}</span>
+          <span class="text-lg md:text-xl lg:text-2xl xl:text-3xl text-primaryColor font-bold">
+            {{ selectedSize ? formatPrice(selectedSize.price * (1 - product?.discount / 100)) : formatPrice(product?.specialPrice) }}
+          </span>
+          <span
+            v-if="(selectedSize && product?.discount > 0) || (!selectedSize && product?.discount > 0)"
+            class="ml-4 md:text-lg lg:text-xl xl:text-2xl text-bodyColor font-bold opacity-75 line-through"
+          >
+            {{ selectedSize ? formatPrice(selectedSize.price) : formatPrice(product?.price) }}
+          </span>
         </div>
         <p class="mt-6 mb-10 text-headingColor">
           {{ product?.summary }}
@@ -91,7 +104,7 @@
                     </g>
                   </svg>
                 </button>
-                <input type="text" value="1" v-model="selectedQuantity" class="w-12 text-center border-none outline-none" />
+                <input type="text" value="1" v-model="selectedQuantity" @blur="handleInput" class="w-12 text-center border-none outline-none" />
                 <button @click.prevent="selectedQuantity = selectedQuantity + 1" class="p-2 text-headingColor">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="20" height="20" viewBox="0 0 1920 1920">
                     <path d="M866.332 213v653.332H213v186.666h653.332v653.332h186.666v-653.332h653.332V866.332h-653.332V213z" fill-rule="evenodd" />
@@ -189,6 +202,17 @@ export default defineComponent({
       selectedImage.value = url
     }
 
+    const handleInput = event => {
+      const value = Number(event.target.value)
+      if (isNaN(value) || value < 1) {
+        selectedQuantity.value = 1
+      } else if (value > selectedSize.value.stock) {
+        selectedQuantity.value = selectedSize.value.stock
+      } else {
+        selectedQuantity.value = value
+      }
+    }
+
     const addCart = async () => {
       if (!userStore.user) {
         router.push({ name: 'auth-login' })
@@ -231,6 +255,7 @@ export default defineComponent({
       formatPrice,
       addCart,
       handleSlideClick,
+      handleInput,
       modules: [Navigation, Autoplay]
     }
   }

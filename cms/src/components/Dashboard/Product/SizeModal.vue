@@ -138,7 +138,7 @@
               </thead>
               <tbody>
                 <tr v-for="(size, index) in sizes" :key="index">
-                  <td class="text-center">{{ size.id }}</td>
+                  <td class="text-center">{{ index + 1 }}</td>
                   <td>{{ size.size }}</td>
                   <td>
                     {{ formatPrice(size.price) }}

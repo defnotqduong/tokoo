@@ -44,14 +44,14 @@ export default defineComponent({
     const categories = ref([])
 
     const options = ref({
-      pageNumber: 0,
-      pageSize: 12,
-      keyword: '',
-      sortBy: 'id',
-      sortOrder: 'asc',
-      categoryId: null,
-      minPrice: null,
-      maxPrice: null
+      keyword: route.query.keyword || '',
+      sortBy: route.query.sortBy || 'id',
+      sortOrder: route.query.sortOrder || 'asc',
+      categoryId: route.query.categoryId ? Number(route.query.categoryId) : '',
+      minPrice: route.query.minPrice ? Number(route.query.minPrice) : null,
+      maxPrice: route.query.maxPrice ? Number(route.query.maxPrice) : null,
+      pageNumber: Number(route.query.pageNumber) || 0,
+      pageSize: Number(route.query.pageSize) || 12
     })
 
     const meta = ref({
@@ -69,7 +69,24 @@ export default defineComponent({
       await fetchData()
     }
 
+    const updateQueryParams = () => {
+      const queryParams = {}
+
+      if (options.value.keyword) queryParams.keyword = options.value.keyword
+      if (options.value.sortBy) queryParams.sortBy = options.value.sortBy
+      if (options.value.sortOrder) queryParams.sortOrder = options.value.sortOrder
+      if (options.value.categoryId) queryParams.categoryId = options.value.categoryId
+      if (options.value.minPrice) queryParams.minPrice = options.value.minPrice
+      if (options.value.maxPrice) queryParams.maxPrice = options.value.maxPrice
+      if (options.value.pageNumber) queryParams.pageNumber = options.value.pageNumber
+      if (options.value.pageSize) queryParams.pageSize = options.value.pageSize
+
+      router.push({ query: queryParams })
+    }
+
     const fetchData = async () => {
+      updateQueryParams()
+
       const res = await findProducts(options.value)
       products.value = res.dtoList
       meta.value = res.pageDto
